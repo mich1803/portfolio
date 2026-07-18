@@ -4,6 +4,7 @@ date: "2026-05-26"
 author: "Michele Magrini"
 institution: "Sapienza University of Rome"
 description: "A Klimt-inspired self-organizing image system that uses Neural Cellular Automata to grow, refine, preserve, and transform an artwork from a single living cell."
+featured_description: "A neural cellular automaton that grows Klimt's The Kiss from a single cell."
 tags:
   - "Neural Cellular Automata"
   - "Deep Learning"

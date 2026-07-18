@@ -9,7 +9,7 @@ export const THEMES: Record<string, Theme> = {
         accent: "#3b82f6",
         muted: "#6b7280",
         border: "#e5e7eb",
-        surface: "#f9fafb",
+        surface: "#ffffff",
         isDark: false,
     },
     dark_default: {
@@ -30,13 +30,13 @@ export const THEMES: Record<string, Theme> = {
         border: '#eaddc6',
         accent: '#b84c30',
     },
-    dark_notepad: {
+    dark_contrast: {
         isDark: true,
-        background: '#241f1c',
-        surface: '#241f1c',
-        foreground: '#e6dfd3',
-        muted: '#8a7d71',
-        border: '#3d342d',
-        accent: '#d97757',
+        background: '#171717',
+        surface: '#202020',
+        foreground: '#f5f5f5',
+        muted: '#a3a3a3',
+        border: '#3a3a3a',
+        accent: '#facc15',
     }
 };

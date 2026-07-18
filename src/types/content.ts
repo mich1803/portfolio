@@ -30,6 +30,7 @@ export interface CV {
 export interface BasePage {
   title: string;
   description?: string;
+  featured_description?: string;
   tags: string[];
 }
 

@@ -3,6 +3,7 @@ title: "Two Suns Gravity Visualizer"
 date: "2025-08-12"
 author: "Michele Magrini"
 description: "An interactive basin-of-attraction renderer that launches a test particle from every image pixel and colors the result by which of two fixed suns captures it."
+featured_description: "A gravitational basin visualizer that turns orbital simulations into generative wallpapers."
 tags:
   - "Computational Physics"
   - "Dynamical Systems"

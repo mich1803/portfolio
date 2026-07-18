@@ -3,6 +3,7 @@ title: "Codenames LLM Showdown: A Dive into the Early Days of Prompt Engineering
 date: "2026-07-18"
 author: "Michele Magrini"
 description: "Revisiting Codenames-LLM, an early multi-agent experiment in prompt engineering, strategic language-model collaboration and model evaluation."
+featured_description: "LLM agents play Codenames through prompts, roles, and strategic collaboration."
 tags:
   - "Large Language Models"
   - "Prompt Engineering"

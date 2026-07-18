@@ -1,6 +1,6 @@
 ---
-import { SOCIALS, SOCIAL_ICONS } from "../../config";
-import { getCollection } from "astro:content";
+import { FEATURED_CONTENT, SOCIALS, SOCIAL_ICONS } from "../../config";
+import { getCollection, getEntry } from "astro:content";
 import Icon from "../ui/Icon.astro";
 import { Image } from "astro:assets";
 import { withBase } from "../../utils/paths";
@@ -9,6 +9,12 @@ const activeSocials = SOCIALS.filter((social) => social.isActive);
 
 interface Props {
     compact?: boolean;
+    showFeatured?: boolean;
+    summaryTitle?: string;
+    publicationStats?: Array<{
+        label: string;
+        value: string;
+    }>;
     headings?: Array<{
         depth: number;
         slug: string;
@@ -16,10 +22,47 @@ interface Props {
     }>;
 }
 
-const { compact = false, headings = [] } = Astro.props;
+const {
+    compact = false,
+    showFeatured = false,
+    summaryTitle = "In this post",
+    publicationStats = [],
+    headings = [],
+} = Astro.props;
+
+const featuredDateFormatter = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+});
 
 const bioCollection = await getCollection("bio");
 const bio = bioCollection[0]?.data;
+
+const featuredTypeLabels = {
+    posts: "Blogpost",
+    projects: "Project",
+    publications: "Publication",
+} as const;
+
+const featuredItems = showFeatured
+    ? (await Promise.all(
+        FEATURED_CONTENT.map(async (selection) => {
+            const entry = await getEntry(selection.collection, selection.id) as any;
+            if (!entry) return null;
+
+            return {
+                title: entry.data.title,
+                type: featuredTypeLabels[selection.collection],
+                date: entry.data.date,
+                tags: entry.data.tags || [],
+                description: entry.data.featured_description || entry.data.description,
+                href: `/${selection.collection}/${entry.id}`,
+            };
+        }),
+    )).filter((item): item is NonNullable<typeof item> => item !== null)
+    : [];
 ---
 
 <aside
@@ -97,9 +140,66 @@ const bio = bioCollection[0]?.data;
     </div>
 
     {
+        showFeatured && (
+            <section class="featured-content" aria-labelledby="featured-content-title">
+                <p id="featured-content-title" class="featured-content-title">
+                    Featured content
+                </p>
+                <ol class="featured-content-list">
+                    {featuredItems.map((item) => (
+                        <li class="featured-content-item">
+                            <a href={withBase(item.href)} class="featured-content-link">
+                                {item.title}
+                            </a>
+                            <div class="featured-content-meta">
+                                <span class="featured-content-type">{item.type}</span>
+                                {item.date && (
+                                    <time datetime={item.date}>
+                                        {featuredDateFormatter.format(new Date(item.date))}
+                                    </time>
+                                )}
+                            </div>
+                            {item.description && (
+                                <p class="featured-content-description">
+                                    {item.description}
+                                </p>
+                            )}
+                            {item.tags.length > 0 && (
+                                <div class="featured-content-tags" aria-label="Tags">
+                                    {item.tags.map((tag) => (
+                                        <span>{tag}</span>
+                                    ))}
+                                </div>
+                            )}
+                        </li>
+                    ))}
+                </ol>
+            </section>
+        )
+    }
+
+    {
+        publicationStats.length > 0 && (
+            <section class="sidebar-statistics" aria-labelledby="publication-statistics-title">
+                <p id="publication-statistics-title" class="sidebar-statistics-title">
+                    Publication snapshot
+                </p>
+                <dl class="sidebar-statistics-grid">
+                    {publicationStats.map((stat) => (
+                        <div class="sidebar-statistic">
+                            <dt>{stat.label}</dt>
+                            <dd>{stat.value}</dd>
+                        </div>
+                    ))}
+                </dl>
+            </section>
+        )
+    }
+
+    {
         compact && headings.length > 0 && (
-            <nav class="post-toc" aria-label="In this post">
-                <p class="post-toc-title">In this post</p>
+            <nav class="post-toc" aria-label={summaryTitle}>
+                <p class="post-toc-title">{summaryTitle}</p>
                 <ol class="post-toc-list">
                     {headings.map((heading) => (
                         <li class:list={{ "post-toc-nested": heading.depth === 3 }}>

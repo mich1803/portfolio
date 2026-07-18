@@ -20,7 +20,8 @@ if (!entry) return Astro.redirect(withBase("/404"));
 
 const { Content, headings } = await render(entry);
 const detail = getDetailItem(entry, collection);
-const sidebarHeadings = collection === "posts"
+const hasSidebarSummary = collection === "posts" || collection === "projects";
+const sidebarHeadings = hasSidebarSummary
     ? headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
     : [];
 const publicationAbstract = collection === "publications" ? entry.data.abstract : undefined;
@@ -30,6 +31,21 @@ const publicationCitations = collection === "publications" && typeof entry.data.
 const publicationSource = collection === "publications" && entry.data.source
     ? entry.data.source === "google-scholar" ? "Google Scholar" : entry.data.source
     : undefined;
+const publicationYear = collection === "publications" && entry.data.date
+    ? String(new Date(entry.data.date).getUTCFullYear())
+    : undefined;
+const publicationAuthorCount = collection === "publications" && entry.data.author
+    ? entry.data.author.split(",").filter((author: string) => author.trim()).length
+    : undefined;
+const publicationStats = collection === "publications"
+    ? [
+        publicationYear ? { label: "Year", value: publicationYear } : null,
+        { label: "Citations", value: String(publicationCitations ?? 0) },
+        publicationAuthorCount !== undefined
+            ? { label: "Authors", value: String(publicationAuthorCount) }
+            : null,
+    ].filter((stat): stat is { label: string; value: string } => stat !== null)
+    : [];
 const projectDemoUrl = collection === "projects" ? entry.data.demo_url : undefined;
 
 const meta = [];
@@ -50,8 +66,10 @@ const ogImage = entry.data.image || SITE.ogImage;
     description={description}
     ogImage={ogImage}
     ogType="article"
-    sidebarVariant={collection === "posts" ? "post" : "default"}
+    sidebarVariant={hasSidebarSummary ? "article" : "publication"}
+    sidebarSummaryTitle={collection === "projects" ? "In this project" : "In this post"}
     sidebarHeadings={sidebarHeadings}
+    sidebarPublicationStats={publicationStats}
 >
     <div class="flex justify-between items-center mb-4">
         <BackLink href={withBase(detail.backHref)} label={collection} />

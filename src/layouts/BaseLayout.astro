@@ -26,7 +26,12 @@ interface Props {
     ogImage?: string;
     ogType?: "website" | "article";
     robots?: "index, follow" | "noindex, nofollow";
-    sidebarVariant?: "default" | "post";
+    sidebarVariant?: "main" | "article" | "publication" | "plain";
+    sidebarSummaryTitle?: string;
+    sidebarPublicationStats?: Array<{
+        label: string;
+        value: string;
+    }>;
     sidebarHeadings?: Array<{
         depth: number;
         slug: string;
@@ -40,7 +45,9 @@ const {
     ogImage = SITE.ogImage,
     ogType = "website",
     robots = "index, follow",
-    sidebarVariant = "default",
+    sidebarVariant = "main",
+    sidebarSummaryTitle = "In this post",
+    sidebarPublicationStats = [],
     sidebarHeadings = [],
 } = Astro.props;
 
@@ -233,8 +240,11 @@ const jsonLd = {
     >
         <div class="flex max-lg:flex-col mx-auto max-w-6xl w-full min-h-screen">
             <LeftSidebar
-                compact={sidebarVariant === "post"}
+                compact={sidebarVariant === "article" || sidebarVariant === "publication"}
+                showFeatured={sidebarVariant === "main"}
                 headings={sidebarHeadings}
+                summaryTitle={sidebarSummaryTitle}
+                publicationStats={sidebarPublicationStats}
             />
             <RightMain>
                 <slot />

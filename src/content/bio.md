@@ -12,7 +12,7 @@ My work focuses on **explainable AI** and **deep learning**.
 
 ## Current Work
 
-At Sapienza University of Rome, Department of Eart Scienza, I apply explainable machine learning to earthquake dynamics, with particular attention to interpretable models of fault-stress evolution during the seismic cycle.
+At Sapienza University of Rome, Department of Earth Science, I apply explainable machine learning to earthquake dynamics, with particular attention to interpretable models of fault-stress evolution during the seismic cycle.
 
 ## Research Interests
 

@@ -4,6 +4,7 @@ date: "2026-02-09"
 author: "Michele Magrini, Francesco Marrocco, and Leo Vincenzo Petrarca"
 institution: "Sapienza University of Rome"
 description: "An educational account-based blockchain that connects elliptic-curve algebra, ECDSA signatures, proof-of-work mining, peer synchronization, and a reproducible nonce-reuse attack."
+featured_description: "An educational blockchain connecting elliptic curves, mining, and cryptographic attacks."
 tags:
   - "Elliptic-Curve Cryptography"
   - "Blockchain"
