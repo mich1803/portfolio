@@ -1,0 +1,348 @@
+---
+import Icon from "../ui/Icon.astro";
+import { withBase } from "../../utils/paths";
+
+interface Props {
+    username?: string;
+}
+
+const { username = "mich1803" } = Astro.props;
+const profileUrl = `https://github.com/${username}`;
+const placeholderCells = Array.from({ length: 53 * 7 });
+---
+
+<section
+    class="github-overview"
+    aria-labelledby="github-overview-title"
+    data-github-overview
+    data-username={username}
+>
+    <header class="github-overview-header">
+        <div class="github-overview-identity">
+            <img
+                src={withBase("/images/michele_magrini.jpeg")}
+                alt="Michele Magrini on GitHub"
+                class="github-overview-avatar"
+                width="72"
+                height="72"
+                loading="lazy"
+                data-github-avatar
+            />
+            <div>
+                <p class="github-overview-eyebrow">GitHub overview</p>
+                <h2 id="github-overview-title" data-github-name>
+                    Michele Magrini
+                </h2>
+                <a
+                    href={profileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="github-overview-handle"
+                >
+                    @{username}
+                </a>
+            </div>
+        </div>
+
+        <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="github-profile-button"
+        >
+            <Icon name="Github" size={18} />
+            View profile
+            <Icon name="ExternalLink" size={15} />
+        </a>
+    </header>
+
+    <dl class="github-stats" aria-label="GitHub profile statistics">
+        <div class="github-stat-card">
+            <dd data-github-stat="repositories" aria-busy="true">&mdash;</dd>
+            <dt>Repositories</dt>
+        </div>
+        <div class="github-stat-card">
+            <dd data-github-stat="followers" aria-busy="true">&mdash;</dd>
+            <dt>Followers</dt>
+        </div>
+        <div class="github-stat-card">
+            <dd data-github-stat="stars" aria-busy="true">&mdash;</dd>
+            <dt>Total stars</dt>
+        </div>
+        <div class="github-stat-card">
+            <dd data-github-stat="forks" aria-busy="true">&mdash;</dd>
+            <dt>Total forks</dt>
+        </div>
+    </dl>
+
+    <div class="github-activity">
+        <div class="github-activity-header">
+            <div>
+                <h3>Contribution activity</h3>
+                <p data-github-contribution-total>Loading activity&hellip;</p>
+            </div>
+            <div class="github-range-picker" role="group" aria-label="Activity range">
+                <button type="button" data-github-range="183" aria-pressed="false" disabled>
+                    6 months
+                </button>
+                <button
+                    type="button"
+                    class="is-active"
+                    data-github-range="371"
+                    aria-pressed="true"
+                    disabled
+                >
+                    12 months
+                </button>
+            </div>
+        </div>
+
+        <div class="github-contribution-panel">
+            <div
+                class="github-contribution-scroll"
+                role="img"
+                aria-label="Loading GitHub contribution activity"
+                data-github-contribution-scroll
+            >
+                <div class="github-contribution-grid" data-github-contribution-grid>
+                    {
+                        placeholderCells.map(() => (
+                            <span class="github-contribution-cell is-loading" />
+                        ))
+                    }
+                </div>
+            </div>
+            <div class="github-contribution-legend" aria-hidden="true">
+                <span>Less</span>
+                {[0, 1, 2, 3, 4].map((level) => (
+                    <span class="github-contribution-cell" data-level={level} />
+                ))}
+                <span>More</span>
+            </div>
+        </div>
+
+        <p class="github-overview-status" aria-live="polite" data-github-status>
+            Loading live public GitHub data&hellip;
+        </p>
+    </div>
+</section>
+
+<script>
+    interface GitHubStats {
+        repositories: number;
+        followers: number;
+        stars: number;
+        forks: number;
+        name: string;
+        avatar: string;
+    }
+
+    interface Contribution {
+        date: string;
+        count: number;
+        level: number;
+    }
+
+    interface GitHubCache {
+        savedAt: number;
+        stats?: GitHubStats;
+        contributions?: Contribution[];
+    }
+
+    const numberFormatter = new Intl.NumberFormat("en-US");
+    const contributionDataByOverview = new WeakMap<HTMLElement, Contribution[]>();
+
+    function getCachedData(key: string): GitHubCache | undefined {
+        try {
+            const cached = localStorage.getItem(key);
+            return cached ? JSON.parse(cached) : undefined;
+        } catch {
+            return undefined;
+        }
+    }
+
+    function cacheData(key: string, data: GitHubCache) {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch {
+            // The overview remains usable when storage is disabled.
+        }
+    }
+
+    async function fetchJson<T>(url: string, headers?: HeadersInit): Promise<T> {
+        const response = await fetch(url, { headers });
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+        return response.json() as Promise<T>;
+    }
+
+    async function loadStats(username: string): Promise<GitHubStats> {
+        const headers = {
+            Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        };
+        const [profile, repositories] = await Promise.all([
+            fetchJson<{
+                public_repos: number;
+                followers: number;
+                name: string | null;
+                avatar_url: string;
+            }>(`https://api.github.com/users/${username}`, headers),
+            fetchJson<Array<{ stargazers_count: number; forks_count: number }>>(
+                `https://api.github.com/users/${username}/repos?per_page=100&type=owner`,
+                headers,
+            ),
+        ]);
+
+        return {
+            repositories: profile.public_repos,
+            followers: profile.followers,
+            stars: repositories.reduce((sum, repository) => sum + repository.stargazers_count, 0),
+            forks: repositories.reduce((sum, repository) => sum + repository.forks_count, 0),
+            name: profile.name || username,
+            avatar: profile.avatar_url,
+        };
+    }
+
+    function showStats(root: HTMLElement, stats: GitHubStats) {
+        Object.entries(stats).forEach(([key, value]) => {
+            if (typeof value !== "number") return;
+            const output = root.querySelector<HTMLElement>(`[data-github-stat="${key}"]`);
+            if (output) {
+                output.textContent = numberFormatter.format(value);
+                output.removeAttribute("aria-busy");
+            }
+        });
+
+        const name = root.querySelector<HTMLElement>("[data-github-name]");
+        const avatar = root.querySelector<HTMLImageElement>("[data-github-avatar]");
+        if (name) name.textContent = stats.name;
+        if (avatar) avatar.src = stats.avatar;
+    }
+
+    function showContributions(root: HTMLElement, contributions: Contribution[], days: number) {
+        const grid = root.querySelector<HTMLElement>("[data-github-contribution-grid]");
+        const scroller = root.querySelector<HTMLElement>("[data-github-contribution-scroll]");
+        const totalOutput = root.querySelector<HTMLElement>("[data-github-contribution-total]");
+        if (!grid || !scroller || !totalOutput) return;
+
+        const visibleContributions = contributions.slice(-days);
+        const fragment = document.createDocumentFragment();
+        const firstDate = visibleContributions[0]?.date;
+        const leadingDays = firstDate
+            ? new Date(`${firstDate}T00:00:00Z`).getUTCDay()
+            : 0;
+
+        for (let index = 0; index < leadingDays; index += 1) {
+            const spacer = document.createElement("span");
+            spacer.className = "github-contribution-cell is-empty";
+            fragment.appendChild(spacer);
+        }
+
+        visibleContributions.forEach((contribution) => {
+            const cell = document.createElement("span");
+            const date = new Date(`${contribution.date}T00:00:00Z`).toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                timeZone: "UTC",
+            });
+            const noun = contribution.count === 1 ? "contribution" : "contributions";
+            cell.className = "github-contribution-cell";
+            cell.dataset.level = String(Math.max(0, Math.min(4, contribution.level)));
+            cell.title = `${contribution.count} ${noun} on ${date}`;
+            fragment.appendChild(cell);
+        });
+
+        grid.replaceChildren(fragment);
+        const total = visibleContributions.reduce((sum, contribution) => sum + contribution.count, 0);
+        const rangeLabel = days === 183 ? "the last 6 months" : "the last year";
+        totalOutput.textContent = `${numberFormatter.format(total)} contributions in ${rangeLabel}`;
+        scroller.setAttribute(
+            "aria-label",
+            `${numberFormatter.format(total)} GitHub contributions in ${rangeLabel}`,
+        );
+        scroller.scrollLeft = scroller.scrollWidth;
+    }
+
+    function enableRangePicker(root: HTMLElement, contributions: Contribution[]) {
+        contributionDataByOverview.set(root, contributions);
+        const buttons = Array.from(
+            root.querySelectorAll<HTMLButtonElement>("[data-github-range]"),
+        );
+        buttons.forEach((button) => {
+            button.disabled = false;
+            if (button.dataset.initialized === "true") return;
+            button.dataset.initialized = "true";
+            button.addEventListener("click", () => {
+                buttons.forEach((candidate) => {
+                    const isActive = candidate === button;
+                    candidate.classList.toggle("is-active", isActive);
+                    candidate.setAttribute("aria-pressed", String(isActive));
+                });
+                const currentContributions = contributionDataByOverview.get(root);
+                if (currentContributions) {
+                    showContributions(
+                        root,
+                        currentContributions,
+                        Number(button.dataset.githubRange),
+                    );
+                }
+            });
+        });
+    }
+
+    async function initGitHubOverview(root: HTMLElement) {
+        if (root.dataset.initialized === "true") return;
+        root.dataset.initialized = "true";
+
+        const username = root.dataset.username;
+        const status = root.querySelector<HTMLElement>("[data-github-status]");
+        if (!username || !status) return;
+
+        const cacheKey = `portfolio-github-overview-v1:${username}`;
+        const cached = getCachedData(cacheKey);
+        if (cached?.stats) showStats(root, cached.stats);
+        if (cached?.contributions) {
+            showContributions(root, cached.contributions, 371);
+            enableRangePicker(root, cached.contributions);
+        }
+
+        const [statsResult, contributionResult] = await Promise.allSettled([
+            loadStats(username),
+            fetchJson<{ contributions: Contribution[] }>(
+                `https://github-contributions-api.jogruber.de/v4/${username}?y=last`,
+            ),
+        ]);
+
+        const stats = statsResult.status === "fulfilled" ? statsResult.value : cached?.stats;
+        const contributions = contributionResult.status === "fulfilled"
+            ? contributionResult.value.contributions
+            : cached?.contributions;
+
+        if (stats) showStats(root, stats);
+        if (contributions && contributionResult.status === "fulfilled") {
+            showContributions(root, contributions, 371);
+            enableRangePicker(root, contributions);
+        }
+
+        if (statsResult.status === "fulfilled" || contributionResult.status === "fulfilled") {
+            cacheData(cacheKey, { savedAt: Date.now(), stats, contributions });
+        }
+
+        if (statsResult.status === "fulfilled" && contributionResult.status === "fulfilled") {
+            status.textContent = "Live data loaded from the public GitHub profile.";
+        } else if (stats || contributions) {
+            status.textContent = "Some live data is unavailable; showing the latest saved values.";
+        } else {
+            status.textContent = "GitHub data is temporarily unavailable. Visit the profile for the latest activity.";
+        }
+    }
+
+    function initGitHubOverviews() {
+        document
+            .querySelectorAll<HTMLElement>("[data-github-overview]")
+            .forEach(initGitHubOverview);
+    }
+
+    document.addEventListener("astro:page-load", initGitHubOverviews);
+</script>

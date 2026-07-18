@@ -4,7 +4,6 @@ export interface SiteConfig {
     desc: string;
     title: string;
     ogImage: string;
-    postPerPage: number;
     favicon: string;
     lang: string;
 }
@@ -13,12 +12,6 @@ export interface ThemeConfig {
     lightAndDark: boolean;
     themeLight: string;
     themeDark: string;
-}
-
-export interface SettingsConfig {
-    showTagsInNavbar: boolean;
-    showRSSInFooter: boolean;
-    addDevToolsInProduction: boolean;
 }
 
 export interface UmamiAnalyticsConfig {

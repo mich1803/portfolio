@@ -3,19 +3,19 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import BaseItemCard from "../components/ui/BaseItemCard.astro";
 import { getListingItem } from "../utils/adapters";
+import { isPublicationVisible } from "../utils/publications";
+import { withBase } from "../utils/paths";
 
 interface Props {
-    collection: "publications" | "talks" | "projects" | "posts" | "teaching" | "all";
+    collection: "publications" | "projects" | "posts";
     title: string;
     subtitle?: string;
-    entries?: any[];
-    page?: any;
 }
 
-const { collection, title, subtitle, entries: manualEntries, page } = Astro.props;
+const { collection, title, subtitle } = Astro.props;
 
-let entries = manualEntries || (collection !== "all" ? await getCollection(collection as any) : []);
-if (page) entries = page.data;
+let entries = await getCollection(collection);
+if (collection === "publications") entries = entries.filter(isPublicationVisible);
 
 const sortedEntries = entries.sort((a: any, b: any) => {
     const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
@@ -32,26 +32,13 @@ const sortedEntries = entries.sort((a: any, b: any) => {
         </header>
     )}
 
+    <slot name="before-list" />
+
     <section class="item-list">
         {sortedEntries.map((entry: any) => {
-            const item = getListingItem(entry);
-            return <BaseItemCard {...item} href={`/${collection}/${entry.id}`} />;
+            const item = getListingItem(entry, collection);
+            return <BaseItemCard {...item} href={withBase(`/${collection}/${entry.id}`)} />;
         })}
     </section>
 
-    {page && page.lastPage > 1 && (
-        <nav class="pagination">
-            {page.url.prev ? (
-                <a href={page.url.prev} class="pagination-link">Newer</a>
-            ) : (
-                <span class="pagination-inactive">Newer</span>
-            )}
-            <span class="pagination-info">Page {page.currentPage} of {page.lastPage}</span>
-            {page.url.next ? (
-                <a href={page.url.next} class="pagination-link">Older</a>
-            ) : (
-                <span class="pagination-inactive">Older</span>
-            )}
-        </nav>
-    )}
 </BaseLayout>

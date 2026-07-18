@@ -1,4 +1,5 @@
 import type { ListingItem, DetailItem } from "../types";
+import { getPublicationType } from "./publications";
 
 function formatDate(dateValue: string | Date | undefined): string | undefined {
     if (!dateValue) return undefined;
@@ -9,6 +10,11 @@ function formatDate(dateValue: string | Date | undefined): string | undefined {
 
 export function getListingItem(entry: any, collection?: string): ListingItem {
     const d = entry.data;
+    const publicationType = collection === "publications" ? getPublicationType(entry) : undefined;
+    const tags = [
+        ...(typeof publicationType === "string" && publicationType ? [publicationType] : []),
+        ...(d.tags || []),
+    ];
     
     return {
         title: d.title,
@@ -16,7 +22,7 @@ export function getListingItem(entry: any, collection?: string): ListingItem {
         date: formatDate(d.date),
         authors: d.author,
         extraInput: d.journal || d.event || d.institution,
-        tags: d.tags || [],
+        tags: [...new Set(tags)],
         externalUrl: d.external_url,
         image: d.image,
     };

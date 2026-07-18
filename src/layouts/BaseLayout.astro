@@ -3,6 +3,7 @@ import { SITE, THEME_CONFIG, ANALYTICS, THEMES } from "../config";
 import { ClientRouter } from "astro:transitions";
 import LeftSidebar from "../components/layout/LeftSidebar.astro";
 import RightMain from "../components/layout/RightMain.astro";
+import { withBase } from "../utils/paths";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
@@ -25,6 +26,12 @@ interface Props {
     ogImage?: string;
     ogType?: "website" | "article";
     robots?: "index, follow" | "noindex, nofollow";
+    sidebarVariant?: "default" | "post";
+    sidebarHeadings?: Array<{
+        depth: number;
+        slug: string;
+        text: string;
+    }>;
 }
 
 const { 
@@ -32,17 +39,23 @@ const {
     description = SITE.desc, 
     ogImage = SITE.ogImage,
     ogType = "website",
-    robots = "index, follow"
+    robots = "index, follow",
+    sidebarVariant = "default",
+    sidebarHeadings = [],
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.website);
+const favicon = withBase(SITE.favicon);
+const fallbackFavicon = withBase("/favicon.ico");
+const ogImageURL = new URL(withBase(ogImage), Astro.site || Astro.url.origin);
+const siteHomeURL = new URL(withBase("/"), Astro.site || Astro.url.origin);
 
 const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
     name: SITE.author,
-    url: SITE.website,
-    jobTitle: "Professor",
+    url: siteHomeURL.href,
+    jobTitle: "M.Sc. Student and Student Researcher",
     description: SITE.desc,
 };
 ---
@@ -52,8 +65,8 @@ const jsonLd = {
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/svg+xml" href={SITE.favicon} />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href={favicon} />
+        <link rel="icon" href={fallbackFavicon} sizes="any" />
         <meta name="generator" content={Astro.generator} />
 
         <!-- Robots / Indexing -->
@@ -111,14 +124,14 @@ const jsonLd = {
         <meta property="og:url" content={Astro.url} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content={new URL(ogImage, Astro.url)} />
+        <meta property="og:image" content={ogImageURL} />
 
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content={Astro.url} />
         <meta property="twitter:title" content={title} />
         <meta property="twitter:description" content={description} />
-        <meta property="twitter:image" content={new URL(ogImage, Astro.url)} />
+        <meta property="twitter:image" content={ogImageURL} />
 
         <!-- Structured Data (JSON-LD) -->
         <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
@@ -219,7 +232,10 @@ const jsonLd = {
         class="bg-background text-foreground transition-colors duration-300 min-h-screen"
     >
         <div class="flex max-lg:flex-col mx-auto max-w-6xl w-full min-h-screen">
-            <LeftSidebar />
+            <LeftSidebar
+                compact={sidebarVariant === "post"}
+                headings={sidebarHeadings}
+            />
             <RightMain>
                 <slot />
             </RightMain>

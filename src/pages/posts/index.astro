@@ -1,0 +1,15 @@
+---
+import BaseListing from "../../layouts/BaseListing.astro";
+import { PAGES } from "../../config";
+import { withBase } from "../../utils/paths";
+
+if (PAGES.blog.isActive === false) {
+    return Astro.redirect(withBase("/404"));
+}
+---
+
+<BaseListing
+    collection="posts"
+    title={PAGES.blog.title}
+    subtitle={PAGES.blog.subtitle}
+/>

@@ -5,27 +5,39 @@ import BackLink from "../components/ui/BackLink.astro";
 import Tag from "../components/ui/Tag.astro";
 import Icon from "../components/ui/Icon.astro";
 import { getDetailItem } from "../utils/adapters";
+import { withBase } from "../utils/paths";
 import { SITE } from "../config";
 
 interface Props {
-    collection: "publications" | "talks" | "projects" | "posts" | "teaching";
+    collection: "publications" | "projects" | "posts";
     id: string;
 }
 
 const { collection, id } = Astro.props;
 const entry = (await getEntry(collection, id)) as any;
 
-if (!entry) return Astro.redirect("/404");
+if (!entry) return Astro.redirect(withBase("/404"));
 
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const detail = getDetailItem(entry, collection);
+const sidebarHeadings = collection === "posts"
+    ? headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+    : [];
+const publicationAbstract = collection === "publications" ? entry.data.abstract : undefined;
+const publicationCitations = collection === "publications" && typeof entry.data.cited_by === "number"
+    ? entry.data.cited_by
+    : undefined;
+const publicationSource = collection === "publications" && entry.data.source
+    ? entry.data.source === "google-scholar" ? "Google Scholar" : entry.data.source
+    : undefined;
+const projectDemoUrl = collection === "projects" ? entry.data.demo_url : undefined;
 
 const meta = [];
 if (detail.date) meta.push({ label: "Date", value: detail.date, icon: "Calendar" });
 if (detail.authors) meta.push({ label: "Author", value: detail.authors, icon: "User" });
 if (detail.extraInput) {
     const icon = "Institution";
-    const label = collection === "publications" ? "Journal" : collection === "talks" ? "Event" : collection === "teaching" ? "Institution" : "Info";
+    const label = collection === "publications" ? "Journal" : "Info";
     meta.push({ label, value: detail.extraInput, icon });
 }
 
@@ -33,12 +45,19 @@ const description = entry.data.description || detail.description || SITE.desc;
 const ogImage = entry.data.image || SITE.ogImage;
 ---
 
-<BaseLayout title={detail.title} description={description} ogImage={ogImage} ogType="article">
+<BaseLayout
+    title={detail.title}
+    description={description}
+    ogImage={ogImage}
+    ogType="article"
+    sidebarVariant={collection === "posts" ? "post" : "default"}
+    sidebarHeadings={sidebarHeadings}
+>
     <div class="flex justify-between items-center mb-4">
-        <BackLink href={detail.backHref} label={collection} />
-        {detail.externalUrl && (
+        <BackLink href={withBase(detail.backHref)} label={collection} />
+        {collection !== "publications" && detail.externalUrl && (
             <a href={detail.externalUrl} target="_blank" rel="noopener noreferrer" class="link">
-                View external
+                {collection === "projects" ? "View source" : "View external"}
             </a>
         )}
     </div>
@@ -65,9 +84,49 @@ const ogImage = entry.data.image || SITE.ogImage;
             </div>
         )}
 
+        {publicationAbstract && (
+            <section class="publication-abstract">
+                <h2>Abstract</h2>
+                <p>{publicationAbstract}</p>
+            </section>
+        )}
+
         <div class="prose">
             <Content />
         </div>
+
+        {projectDemoUrl && (
+            <div class="project-demo-cta">
+                <a
+                    href={projectDemoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="project-demo-button"
+                >
+                    Launch the live simulation
+                    <Icon name="ExternalLink" size={16} />
+                </a>
+            </div>
+        )}
+
+        {collection === "publications" && (
+            <footer class="publication-details" aria-label="Publication details">
+                <p class="publication-details-title">Publication details</p>
+                <div class="publication-details-meta">
+                    {publicationCitations !== undefined && (
+                        <span><strong>Google Scholar citations:</strong> {publicationCitations}</span>
+                    )}
+                    {publicationSource && (
+                        <span><strong>Source:</strong> {publicationSource}</span>
+                    )}
+                </div>
+                {detail.externalUrl && (
+                    <a href={detail.externalUrl} target="_blank" rel="noopener noreferrer" class="link">
+                        Open publication
+                    </a>
+                )}
+            </footer>
+        )}
 
         <slot name="share" />
         <slot name="footer" />

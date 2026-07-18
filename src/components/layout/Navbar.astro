@@ -1,7 +1,9 @@
 ---
 import { NAV_LINKS, PAGES } from "../../config";
+import { withBase } from "../../utils/paths";
 
-const currentPath = Astro.url.pathname;
+const normalizePath = (path: string) => path.replace(/\/+$/, "") || "/";
+const currentPath = normalizePath(Astro.url.pathname);
 ---
 
 <nav class="navbar">
@@ -13,24 +15,26 @@ const currentPath = Astro.url.pathname;
                     ? "home"
                     : link.href.split("/").filter(Boolean)[0];
                 const pageConfig = (PAGES as any)[pageKey];
-                return link.isActive !== false && pageConfig?.active !== false;
-            }).map((link) => (
+                return link.isActive !== false && pageConfig?.isActive !== false;
+            }).map((link) => {
+                const href = withBase(link.href);
+                const normalizedHref = normalizePath(href);
+                const isActive = currentPath === normalizedHref || (
+                    link.href !== "/" && currentPath.startsWith(`${normalizedHref}/`)
+                );
+
+                return (
                 <li>
                     <a
-                        href={link.href}
-                        class={`nav-link ${
-                            currentPath === link.href ||
-                            (link.href !== "/" &&
-                                currentPath.startsWith(link.href))
-                                ? "active"
-                                : "inactive"
-                        }`}
+                        href={href}
+                        class={`nav-link ${isActive ? "active" : "inactive"}`}
                     >
                         {link.label}
                         <span class="nav-link-line" />
                     </a>
                 </li>
-            ))
+                );
+            })
         }
     </ul>
 </nav>

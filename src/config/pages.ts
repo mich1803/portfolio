@@ -8,7 +8,7 @@ export const PAGES: PagesConfig = {
     },
     blog: {
         title: "Blog",
-        subtitle: "Thoughts on physics, philosophy, and music.",
+        subtitle: "Research notes, experiments, and articles on mathematics and artificial intelligence.",
         isActive: true,
     },
     publications: {
@@ -16,24 +16,9 @@ export const PAGES: PagesConfig = {
         subtitle: "A collection of research papers and scientific articles.",
         isActive: true,
     },
-    talks: {
-        title: "Talks & Presentations",
-        subtitle: "Public lectures, colloquia, and conference presentations.",
-        isActive: true,
-    },
     projects: {
-        title: "Code & Projects",
-        subtitle: "Open source contributions and technological experiments.",
-        isActive: true,
-    },
-    teaching: {
-        title: "Teaching",
-        subtitle: "Academic courses and educational materials.",
-        isActive: true,
-    },
-    tags: {
-        title: "Tags",
-        subtitle: "Explore content by topic.",
+        title: "Projects",
+        subtitle: "Selected university, research, and machine learning projects.",
         isActive: true,
     },
     cv: {

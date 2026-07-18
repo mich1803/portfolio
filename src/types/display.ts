@@ -1,14 +1,3 @@
-export interface DisplayMeta {
-    label?: string;
-    value: string;
-    datetime?: string;
-}
-
-export interface DisplayLink {
-    href: string;
-    label: string;
-}
-
 export interface ListingItem {
     title: string;
     description?: string;

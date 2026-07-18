@@ -2,17 +2,18 @@
 import { getCollection } from "astro:content";
 import BaseDetail from "../../layouts/BaseDetail.astro";
 import { PAGES } from "../../config";
+import { withBase } from "../../utils/paths";
 
 if (PAGES.projects.isActive === false) {
-    return Astro.redirect("/404");
+    return Astro.redirect(withBase("/404"));
 }
 
 export async function getStaticPaths() {
     if (PAGES.projects.isActive === false) return [];
+
     const projects = await getCollection("projects");
-    return projects.map((project: any) => ({
+    return projects.map((project) => ({
         params: { id: project.id },
-        props: { project },
     }));
 }
 

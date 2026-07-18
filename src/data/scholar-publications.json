@@ -1,0 +1,25 @@
+{
+  "authorId": "_gx5hKUAAAAJ",
+  "language": "en",
+  "sort": "pubdate",
+  "publications": {
+    "explainable-machine-learning-for-earthquakes-2025": {
+      "type": false,
+      "description": "An explainable deep learning framework combining RGB spectrograms and SHAP to interpret seismic event classification.",
+      "tags": [
+        "Explainable AI",
+        "Deep Learning",
+        "Earthquake Science"
+      ]
+    },
+    "analysis-of-foreshocks-and-aftershocks-in-a-microseismic-sequence-in-switzerland-using-explainable-a-2026": {
+      "type": "Conference Contribution"
+    },
+    "station-level-and-network-wide-shap-explanation-of-cnn-models-for-seismic-cycle-monitoring-evidence--2026": {
+      "type": "Conference Contribution"
+    },
+    "explainable-machine-learning-for-earthquakes-shap-interpretation-of-cnns-to-distinguish-seismic-spec-2025": {
+      "type": "Conference Poster Session"
+    }
+  }
+}

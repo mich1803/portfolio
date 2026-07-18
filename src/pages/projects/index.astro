@@ -1,5 +1,6 @@
 ---
 import BaseListing from "../../layouts/BaseListing.astro";
+import GitHubOverview from "../../components/projects/GitHubOverview.astro";
 import { PAGES } from "../../config";
 
 if (PAGES.projects.isActive === false) {
@@ -8,7 +9,9 @@ if (PAGES.projects.isActive === false) {
 ---
 
 <BaseListing
+    collection="projects"
     title={PAGES.projects.title}
     subtitle={PAGES.projects.subtitle}
-    collection="projects"
-/>
+>
+    <GitHubOverview slot="before-list" username="mich1803" />
+</BaseListing>

@@ -4,6 +4,8 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
 
 permissions:
   contents: read
@@ -13,6 +15,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+      ASTRO_SITE: ${{ vars.ASTRO_SITE }}
+      ASTRO_BASE: ${{ vars.ASTRO_BASE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

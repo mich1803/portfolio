@@ -3,33 +3,33 @@ import type { SocialLink } from "../types";
 export const SOCIALS: SocialLink[] = [
     {
         name: "Github",
-        href: "https://github.com/shannon",
-        linkTitle: `Follow Claude Shannon on Github`,
+        href: "https://github.com/mich1803",
+        linkTitle: `Follow me on Github`,
         isActive: true,
     },
     {
         name: "Mail",
-        href: "mailto:shannon@bell-labs.com",
-        linkTitle: `Send an email to Claude`,
+        href: "mailto:michelemagrini2003@gmail.com",
+        linkTitle: `Send an email to me`,
         isActive: true,
     },
     {
         name: "Google Scholar",
-        href: "https://scholar.google.com/citations?user=shannon",
-        linkTitle: `Claude Shannon on Google Scholar`,
+        href: "https://scholar.google.com/citations?user=_gx5hKUAAAAJ&hl=it",
+        linkTitle: `Michele Magrini on Google Scholar`,
         isActive: true,
     },
     {
         name: "ORCID",
-        href: "https://orcid.org/0000-0002-1825-0097",
-        linkTitle: `Claude Shannon on ORCID`,
+        href: "https://orcid.org/0009-0008-9246-1192",
+        linkTitle: `Michele Magrini on ORCID`,
         isActive: true,
     },
     {
         name: "LinkedIn",
-        href: "https://www.linkedin.com/in/claude-shannon-123456789/",
-        linkTitle: `Claude Shannon on LinkedIn`,
-        isActive: true, // Assuming Claude doesn't have a LinkedIn profile
+        href: "https://www.linkedin.com/in/michele-magrini/",
+        linkTitle: `Connect with me on LinkedIn`,
+        isActive: true,
     },
 ];
 

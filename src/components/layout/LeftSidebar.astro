@@ -1,53 +1,165 @@
 ---
-import { SITE, SOCIALS, SOCIAL_ICONS } from "../../config";
+import { SOCIALS, SOCIAL_ICONS } from "../../config";
 import { getCollection } from "astro:content";
 import Icon from "../ui/Icon.astro";
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
+import { withBase } from "../../utils/paths";
 
-const activeSocials = SOCIALS.filter((s) => s.isActive);
+const activeSocials = SOCIALS.filter((social) => social.isActive);
+
+interface Props {
+    compact?: boolean;
+    headings?: Array<{
+        depth: number;
+        slug: string;
+        text: string;
+    }>;
+}
+
+const { compact = false, headings = [] } = Astro.props;
+
 const bioCollection = await getCollection("bio");
 const bio = bioCollection[0]?.data;
 ---
 
-<aside class="sidebar max-lg:flex-row max-lg:flex-wrap max-lg:gap-3 max-md:gap-2">
-    <div class="flex flex-col items-center text-center max-lg:flex-row max-lg:text-left max-lg:gap-3 max-lg:items-center max-md:gap-2">
-        {bio?.avatar && (
-            <Image
-                src={`/${bio.avatar}`}
-                alt={`Avatar of ${bio.name}`}
-                width={160} /* Maximum width in global.css for sidebar-avatar class */
-                height={160}
-                densities={[1.5, 2]} 
-                format="webp"
-                class="sidebar-avatar"
-                loading="eager"
-            />
-        )}
+<aside
+    class="sidebar max-lg:flex-row max-lg:flex-wrap max-lg:gap-3 max-md:gap-2"
+>
+    <div
+        class="flex flex-col items-center text-center max-lg:flex-row max-lg:items-center max-lg:gap-3 max-lg:text-left max-md:gap-2"
+    >
+        {
+            bio?.avatar && (
+                <Image
+                    src={withBase(bio.avatar)}
+                    alt={`Avatar of ${bio.name}`}
+                    width={160}
+                    height={160}
+                    densities={[1.5, 2]}
+                    format="webp"
+                    class="sidebar-avatar"
+                    loading="eager"
+                />
+            )
+        }
+
         <div class="flex flex-col items-center max-lg:items-start">
             {bio?.name && <h1 class="sidebar-name">{bio.name}</h1>}
-            {bio?.institution && (
-                <p class="sidebar-info">
-                    <Icon name="Institution" size={24} />
-                    {bio.institution}
-                </p>
-            )}
-            {bio?.shortBio && (
-                <p class="sidebar-bio mt-2 max-md:hidden">{bio.shortBio}</p>
-            )}
-            <div class="flex gap-1 flex-wrap items-center justify-center max-lg:justify-start mt-3">
-                {activeSocials.map((social) => (
-                    <a
-                        href={social.href}
-                        aria-label={social.linkTitle}
-                        title={social.linkTitle}
-                        target="_blank"
-                        rel="noreferrer"
-                        class="social-link"
-                    >
-                        <Icon name={SOCIAL_ICONS[social.name] || social.name} size={24} />
-                    </a>
-                ))}
+
+            {
+                !compact && (bio?.institution || bio?.location) && (
+                    <div class="sidebar-info">
+                        <Icon name="Institution" size={24} />
+                        <span class="sidebar-affiliation-text">
+                            {bio?.institution && <span>{bio.institution}</span>}
+                            {bio?.location && (
+                                <span class="sidebar-location">
+                                    {bio.location}
+                                </span>
+                            )}
+                        </span>
+                    </div>
+                )
+            }
+
+            {
+                !compact && bio?.shortBio && (
+                    <p class="sidebar-bio mt-2 max-md:hidden">
+                        {bio.shortBio}
+                    </p>
+                )
+            }
+
+            <div
+                class="mt-3 flex flex-wrap items-center justify-center gap-1 max-lg:justify-start"
+            >
+                {
+                    activeSocials.map((social) => (
+                        <a
+                            href={social.href}
+                            aria-label={social.linkTitle}
+                            title={social.linkTitle}
+                            target="_blank"
+                            rel="noreferrer"
+                            class="social-link"
+                        >
+                            <Icon
+                                name={
+                                    SOCIAL_ICONS[social.name] || social.name
+                                }
+                                size={24}
+                            />
+                        </a>
+                    ))
+                }
             </div>
         </div>
     </div>
+
+    {
+        compact && headings.length > 0 && (
+            <nav class="post-toc" aria-label="In this post">
+                <p class="post-toc-title">In this post</p>
+                <ol class="post-toc-list">
+                    {headings.map((heading) => (
+                        <li class:list={{ "post-toc-nested": heading.depth === 3 }}>
+                            <a
+                                href={`#${heading.slug}`}
+                                class="post-toc-link"
+                                data-post-toc-link
+                                data-heading-id={heading.slug}
+                            >
+                                {heading.text}
+                            </a>
+                        </li>
+                    ))}
+                </ol>
+            </nav>
+        )
+    }
 </aside>
+
+<script>
+    let tocObserver: IntersectionObserver | undefined;
+
+    function initPostTableOfContents() {
+        tocObserver?.disconnect();
+
+        const links = Array.from(
+            document.querySelectorAll<HTMLAnchorElement>("[data-post-toc-link]"),
+        );
+        const sections = links
+            .map((link) => {
+                const id = link.dataset.headingId;
+                return id ? document.getElementById(id) : null;
+            })
+            .filter((section): section is HTMLElement => section !== null);
+
+        if (links.length === 0 || sections.length === 0) return;
+
+        const setActiveLink = (id: string) => {
+            links.forEach((link) => {
+                const isActive = link.dataset.headingId === id;
+                link.classList.toggle("is-active", isActive);
+                if (isActive) link.setAttribute("aria-current", "location");
+                else link.removeAttribute("aria-current");
+            });
+        };
+
+        const updateActiveLink = () => {
+            const activeSection = [...sections]
+                .reverse()
+                .find((section) => section.getBoundingClientRect().top <= 180);
+            setActiveLink((activeSection ?? sections[0]).id);
+        };
+
+        tocObserver = new IntersectionObserver(updateActiveLink, {
+            rootMargin: "-120px 0px -65% 0px",
+            threshold: [0, 1],
+        });
+        sections.forEach((section) => tocObserver?.observe(section));
+        updateActiveLink();
+    }
+
+    document.addEventListener("astro:page-load", initPostTableOfContents);
+</script>

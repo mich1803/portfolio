@@ -12,20 +12,14 @@ const publications = defineCollection({
         external_url: z.string().optional(),
         image: z.string().optional(),
         description: z.string().optional(),
+        abstract: z.string().optional(),
         tags: z.array(z.string()).optional(),
-    }),
-});
-
-const talks = defineCollection({
-    loader: glob({ pattern: "**/*.md", base: "./src/content/talks" }),
-    schema: z.object({
-        title: z.string(),
-        date: z.string().optional(),
-        event: z.string().optional(),
-        external_url: z.string().optional(),
-        description: z.string().optional(),
-        tags: z.array(z.string()).optional(),
-        image: z.string().optional(),
+        visible: z.boolean().default(true),
+        type: z.union([z.literal(false), z.string()]).optional(),
+        publication_key: z.string().optional(),
+        scholar_id: z.string().optional(),
+        cited_by: z.number().int().nonnegative().optional(),
+        source: z.string().optional(),
     }),
 });
 
@@ -42,17 +36,6 @@ const posts = defineCollection({
     }),
 });
 
-const teaching = defineCollection({
-    loader: glob({ pattern: "**/*.md", base: "./src/content/teaching" }),
-    schema: z.object({
-        title: z.string(),
-        institution: z.string().optional(),
-        description: z.string().optional(),
-        tags: z.array(z.string()).optional(),
-        external_url: z.string().url().optional(),
-    }),
-});
-
 const bio = defineCollection({
     loader: glob({ pattern: "bio.md", base: "./src/content" }),
     schema: z.object({
@@ -60,6 +43,7 @@ const bio = defineCollection({
         avatar: z.string(),
         shortBio: z.string().optional(),
         institution: z.string().optional(),
+        location: z.string().optional(),
     }),
 });
 
@@ -67,9 +51,13 @@ const projects = defineCollection({
     loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
     schema: z.object({
         title: z.string(),
+        date: z.string().optional(),
+        author: z.string().optional(),
+        institution: z.string().optional(),
         description: z.string().optional(),
         tags: z.array(z.string()).optional(),
         external_url: z.string().optional(),
+        demo_url: z.string().url().optional(),
         image: z.string().optional(),
     }),
 });
@@ -97,10 +85,8 @@ const cv = defineCollection({
 
 export const collections = {
     'publications': publications,
-    'talks': talks,
     'posts': posts,
     'bio': bio,
     'projects': projects,
     'cv': cv,
-    'teaching': teaching,
 };

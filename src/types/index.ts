@@ -8,16 +8,13 @@ export type {
     Blog,
     Project,
     Publication,
-    Talk,
-    Teaching,
 } from "./content";
 
-export type { DisplayLink, DisplayMeta, ListingItem, DetailItem } from "./display";
+export type { ListingItem, DetailItem } from "./display";
 
 export type {
     SiteConfig,
     ThemeConfig,
-    SettingsConfig,
     UmamiAnalyticsConfig,
     AnalyticsConfig,
     PagesConfig,

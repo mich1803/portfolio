@@ -1,120 +1,133 @@
-# 🎓 Academic Portfolio Astro
+# Michele Magrini - Academic Portfolio
 
-[![Astro](https://img.shields.io/badge/ASTRO-FF5D01?style=for-the-badge&logo=astro&logoColor=white)](https://astro.build/)
-[![Tailwind](https://img.shields.io/badge/TAILWIND-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/MIT-44CC11?style=for-the-badge)](https://opensource.org/license/mit)
+Personal academic portfolio for Michele Magrini, an M.Sc. student in Applied Mathematics for Artificial Intelligence and student researcher working on explainable machine learning for scientific applications.
 
-![Page Screenshot](public/main_page.jpg)
+The site is built with [Astro](https://astro.build/), TypeScript, Tailwind CSS, Markdown content collections, and KaTeX. It is designed to run locally from `/`, deploy to a GitHub Pages repository subpath, and later move to a custom domain without rewriting internal links.
 
-A fast, minimalist, and highly customizable Astro template designed specifically for researchers, professors, PhD students, and academics. 
+## Origin and attribution
 
-Strongly inspired by [Academic Pages](https://github.com/academicpages/academicpages.github.io) and [AstroPaper](https://github.com/satnaing/astro-paper), this template prioritizes content readability, SEO discoverability, and ease of configuration without touching the UI code.
+This project is based on [rubzip/academic-portfolio-astro](https://github.com/rubzip/academic-portfolio-astro), created by Rubén Gijón and distributed under the MIT License.
 
-> 🌟 **[View the Live Demo](https://astro-academics-page.vercel.app/)**
+This repository takes that project as its foundation and adapts its content, identity, navigation, and visual presentation to Michele Magrini's academic persona. It also edits existing behavior and adds functionality specific to this portfolio, including:
 
-## ✨ Features
+- append-only Google Scholar synchronization with duplicate detection;
+- publication abstracts, types, visibility rules, RSS filtering, and sitemap filtering;
+- an interactive GitHub profile and contribution overview on the Projects page;
+- compact, interactive article summaries on individual blog posts;
+- environment-aware Astro `site` and `base` configuration for local development, GitHub Pages, and custom domains;
+- portfolio projects and academic content curated from Michele's CV and source repositories.
 
-- **Markdown-Driven Collections:** Easily manage your `Bio`, `Blog`, `Publications`, `Projects`, `Talks`, `CV`, and `Teaching` experience purely through `.md` files, **no programming knowledge required**.
-- **Academic Standard Support:** Out-of-the-box $\LaTeX$ rendering support via `remark-math`/`rehype-katex`.
-- **Extensive Theming System:** Built-in Light/Dark mode toggle with a highly customizable underlying design system and several preset color palettes.
-- **Toggleable Sections:** Don't need a "Talks" or "Teaching" section? Disable them globally with a single boolean flag in your config.
-- **Peak Performance:** Built with Astro and Tailwind CSS v4 (via `@tailwindcss/vite`), yielding near-perfect Lighthouse scores and minimal client-side JavaScript.
-- **Analytics:** Includes native configuration options for self-hosted Umami analytics (`umami.websiteId`), as well as GA4 support (`ga4Id`).
-- **Two-Column Architecture:** Optimized layout with a sticky left profile sidebar and a scrollable main content area.
+The original copyright notice is preserved in [LICENSE](LICENSE).
 
-## 🚀 Getting Started
+## Main features
 
-### 1. Bootstrap the Repository
+- Markdown-driven biography, CV, projects, publications, and blog posts.
+- Responsive two-column academic layout with light and dark themes.
+- LaTeX mathematics through `remark-math` and `rehype-katex`.
+- Live GitHub repository, follower, star, fork, and contribution statistics.
+- Blog table of contents that follows the reader through the article.
+- Static RSS feed and sitemap containing only visible publications.
+- GitHub Actions deployment with an optional weekly Scholar refresh.
+- Optional GA4 and Umami analytics configuration.
 
-**Via GitHub CLI (Recommended):**
+## Local development
+
+Requirements:
+
+- Node.js 22.12.0 or newer
+- npm
+
+Install dependencies and start the development server:
+
 ```bash
-gh repo create my-portfolio --template="rubzip/academic-portfolio-astro" --clone
-cd my-portfolio
-```
-
-**Via Standard Git:**
-```bash
-git clone https://github.com/rubzip/academic-portfolio-astro.git my-portfolio
-cd my-portfolio
-```
-
-### 2. Install Dependencies
-This project uses Node.js (requires **Node.js >= 22.12.0**).
-```bash
-npm install
-```
-
-### 3. Start Development Server
-```bash
+npm ci
 npm run dev
 ```
-Your local server will start at `http://localhost:4321`.
 
-## 📂 Architecture & Structure
+Open [http://localhost:4321/](http://localhost:4321/). Local development always uses the root path, even when the production deployment uses a GitHub Pages repository subpath.
 
-This project follows a centralized configuration architecture and is driven entirely by Markdown/MDX content.
+The Scholar API key is optional during local development. Without it, synchronization leaves all cached publication files untouched.
 
-```text
-/
-├── public/                 # Static assets (images, favicon, robots.txt)
-├── src/
-│   ├── assets/             # Global icons (`icons.ts`)
-│   ├── components/         # Reusable Astro UI components (Tailwind classes used for styling)
-│   ├── config/             # ⚙️ ALL GLOBAL CONFIGURATION LIVES HERE
-│   │   ├── site.ts         # Meta details & Analytics (SITE, THEME_CONFIG, SETTINGS)
-│   │   ├── pages.ts        # Enable/Disable sections & subtitles (PAGES)
-│   │   ├── themes.ts       # Color palettes
-│   │   ├── navigation.ts   # Navbar links (NAV_LINKS)
-│   │   └── social.ts       # Social media links (SOCIALS)
-│   ├── content/            # 📝 ALL MARKDOWN CONTENT LIVES HERE
-│   │   ├── bio.md
-│   │   ├── cv.md
-│   │   ├── posts/
-│   │   ├── projects/
-│   │   ├── publications/
-│   │   ├── talks/
-│   │   └── teaching/
-│   ├── layouts/            # Page layout wrappers
-│   ├── pages/              # Astro routing
-│   ├── styles/             # Global CSS (`global.css` - Theme colors, base styles)
-│   └── types/              # TypeScript interfaces (content, display, config, themes)
-└── content.config.ts       # Zod schemas for all markdown collections
+To enable live Scholar synchronization, create an ignored `.env` file:
+
+```dotenv
+SERPAPI_KEY=your_serpapi_key
 ```
 
-## 📖 Documentation & Setup
+Never commit `.env` or an API key.
 
-For a comprehensive, step-by-step guide on how to configure your site, modify the design, and write new content, please refer to the dedicated setup post included in this template:
+## Content and configuration
 
-**👉 [Setting up Your Academic Portfolio](src/content/posts/setting-up-portfolio.md)**
+| Path | Purpose |
+| --- | --- |
+| `src/content/bio.md` | Biography and sidebar identity |
+| `src/content/cv.md` | Education and research experience |
+| `src/content/projects/` | Project pages |
+| `src/content/posts/` | Blog posts and local post images |
+| `src/content/publications/` | Manually curated and synchronized publications |
+| `src/data/scholar-publications.json` | Scholar identifiers and display configuration |
+| `src/config/site.ts` | Site metadata, themes, and analytics |
+| `src/config/navigation.ts` | Main navigation |
+| `src/config/social.ts` | Social and academic profile links |
+| `src/styles/global.css` | Global theme and component styles |
 
+## Google Scholar synchronization
 
-## 📋 Configuration
+Run the synchronization manually with:
 
-All configuration is managed centrally in the `src/config` directory. Modify these files to personalize your portfolio without touching any UI code:
+```bash
+npm run sync:scholar
+```
 
-| File | Purpose |
-| :--- | :--- |
-| [`pages.ts`](src/config/pages.ts) | Enable/disable entire sections (e.g., `talks`, `teaching`) and set page subtitles. |
-| [`themes.ts`](src/config/themes.ts) | Define and manage all color palettes. Use `THEME_CONFIG` in `site.ts` to apply. |
-| [`site.ts`](src/config/site.ts) | Manage metadata, analytics keys (Umami/GA4), and critical file paths. |
-| [`navigation.ts`](src/config/navigation.ts) | Define the primary navigation bar links. |
-| [`social.ts`](src/config/social.ts) | Configure social media links appearing in the footer and header. |
+The synchronization is deliberately append-only:
 
+- existing publication Markdown files are never rewritten or deleted;
+- existing records are detected by Scholar ID, publication key, and filename;
+- only genuinely new publications create new Markdown files;
+- new publications default to `type: false`, so they remain hidden until reviewed;
+- abstracts are stored when the Scholar provider returns one.
 
-## 🛠️ Build Commands
+Visibility is controlled in `src/data/scholar-publications.json`:
 
-All standard build commands run through `npm`:
+```json
+{
+  "type": "Journal Publication"
+}
+```
+
+A non-empty type string shows the publication and displays that string as its label. Use `"type": false` to hide it. The older `"visible": false` setting remains supported. Changing a type does not require another synchronization.
+
+Run the safety tests with:
+
+```bash
+npm run test:scholar
+```
+
+More details are available in [docs/GOOGLE-SCHOLAR-SYNC.md](docs/GOOGLE-SCHOLAR-SYNC.md).
+
+## GitHub Pages deployment
+
+The workflow in `.github/workflows/deploy.yml` builds and deploys every push to `main`. It also runs weekly so that Scholar can discover new publications when the `SERPAPI_KEY` repository secret is configured.
+
+In the GitHub repository:
+
+1. Open **Settings > Pages**.
+2. Set the deployment source to **GitHub Actions**.
+3. Optionally add `SERPAPI_KEY` under **Settings > Secrets and variables > Actions > Secrets**.
+4. Push to `main` or run the workflow manually from the **Actions** tab.
+
+Astro reads `GITHUB_REPOSITORY` during Actions builds and automatically generates the correct repository subpath. Optional repository variables `ASTRO_SITE` and `ASTRO_BASE` can override that behavior for a custom domain.
+
+## Commands
 
 | Command | Action |
-| :--- | :--- |
-| `npm run dev` | Starts the local development server on `localhost:4321` |
-| `npm run build` | Builds your project for production output into `./dist/` |
-| `npm run preview` | Previews your production build locally |
-| `npm run format` | Runs Prettier on all files to format code |
+| --- | --- |
+| `npm run dev` | Start local development at `http://localhost:4321/` |
+| `npm run sync:scholar` | Append genuinely new Scholar publications |
+| `npm run test:scholar` | Verify synchronization safety guarantees |
+| `npm run build` | Synchronize safely and create the production build in `dist/` |
+| `npm run preview` | Preview the latest production build |
 
-## 🤝 Contributing & License
+## License
 
-Contributions, issues, and feature requests are always welcome! Feel free to check the [issues page](https://github.com/rubzip/academic-portfolio-astro/issues).
-
-This project is licensed under the **MIT License** - see the `LICENSE` file for details.
+This adapted portfolio remains available under the [MIT License](LICENSE). The original repository and author are credited above, and the original copyright notice is retained.
