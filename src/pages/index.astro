@@ -1,6 +1,7 @@
 ---
 import { getEntry, render } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import FeaturedContent from "../components/layout/FeaturedContent.astro";
 import { PAGES } from "../config";
 
 // Load bio content
@@ -27,5 +28,9 @@ const { Content: BioContent } = bioEntry
 		<div class="prose">
 			{BioContent ? <BioContent /> : <p>Loading bio...</p>}
 		</div>
+		<FeaturedContent
+			class="mobile-about-featured-content"
+			titleId="mobile-featured-content-title"
+		/>
 	</div>
 </BaseLayout>

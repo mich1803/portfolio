@@ -630,6 +630,10 @@ a:hover,
     content: "";
 }
 
+.mobile-about-featured-content {
+    display: none;
+}
+
 .featured-content-title {
     margin-bottom: 0.65rem;
     color: var(--text-muted);
@@ -1270,7 +1274,7 @@ a:hover,
         display: none;
     }
 
-    .featured-content,
+    .sidebar-featured-content,
     .cv-sidebar-details {
         display: none;
     }
@@ -1281,6 +1285,12 @@ a:hover,
 
     .cv-mobile-details {
         display: block;
+    }
+
+    .mobile-about-featured-content {
+        display: block;
+        margin: 2.5rem 0 0;
+        padding: 1.5rem 0 0;
     }
 
     .main-body {

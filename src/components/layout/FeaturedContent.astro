@@ -1,0 +1,76 @@
+---
+import { getEntry } from "astro:content";
+import { FEATURED_CONTENT } from "../../config";
+import { withBase } from "../../utils/paths";
+
+interface Props {
+    class?: string;
+    titleId?: string;
+}
+
+const {
+    class: className,
+    titleId = "featured-content-title",
+} = Astro.props;
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+});
+
+const typeLabels = {
+    posts: "Blogpost",
+    projects: "Project",
+    publications: "Publication",
+} as const;
+
+const items = (await Promise.all(
+    FEATURED_CONTENT.map(async (selection) => {
+        const entry = await getEntry(selection.collection, selection.id) as any;
+        if (!entry) return null;
+
+        return {
+            title: entry.data.title,
+            type: typeLabels[selection.collection],
+            date: entry.data.date,
+            tags: (entry.data.tags || []).slice(0, 2),
+            description: entry.data.featured_description || entry.data.description,
+            href: `/${selection.collection}/${entry.id}`,
+        };
+    }),
+)).filter((item): item is NonNullable<typeof item> => item !== null);
+---
+
+<section
+    class:list={["featured-content", className]}
+    aria-labelledby={titleId}
+>
+    <p id={titleId} class="featured-content-title">Featured content</p>
+    <ol class="featured-content-list">
+        {items.map((item) => (
+            <li class="featured-content-item">
+                <a href={withBase(item.href)} class="featured-content-link">
+                    {item.title}
+                </a>
+                <div class="featured-content-meta">
+                    <span class="featured-content-type">{item.type}</span>
+                    {item.date && (
+                        <time datetime={item.date}>
+                            {dateFormatter.format(new Date(item.date))}
+                        </time>
+                    )}
+                </div>
+                {item.description && (
+                    <p class="featured-content-description">{item.description}</p>
+                )}
+                {item.tags.length > 0 && (
+                    <div class="featured-content-tags" aria-label="Tags">
+                        {item.tags.map((tag) => <span>{tag}</span>)}
+                    </div>
+                )}
+            </li>
+        ))}
+    </ol>
+</section>
