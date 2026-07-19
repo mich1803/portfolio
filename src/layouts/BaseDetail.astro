@@ -7,6 +7,7 @@ import Icon from "../components/ui/Icon.astro";
 import { getDetailItem } from "../utils/adapters";
 import { withBase } from "../utils/paths";
 import { SITE } from "../config";
+import { renderMarkdown } from "../utils/markdown";
 
 interface Props {
     collection: "publications" | "projects" | "posts";
@@ -25,27 +26,15 @@ const sidebarHeadings = hasSidebarSummary
     ? headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
     : [];
 const publicationAbstract = collection === "publications" ? entry.data.abstract : undefined;
+const publicationAbstractHtml = publicationAbstract
+    ? await renderMarkdown(publicationAbstract)
+    : undefined;
 const publicationCitations = collection === "publications" && typeof entry.data.cited_by === "number"
     ? entry.data.cited_by
     : undefined;
 const publicationSource = collection === "publications" && entry.data.source
     ? entry.data.source === "google-scholar" ? "Google Scholar" : entry.data.source
     : undefined;
-const publicationYear = collection === "publications" && entry.data.date
-    ? String(new Date(entry.data.date).getUTCFullYear())
-    : undefined;
-const publicationAuthorCount = collection === "publications" && entry.data.author
-    ? entry.data.author.split(",").filter((author: string) => author.trim()).length
-    : undefined;
-const publicationStats = collection === "publications"
-    ? [
-        publicationYear ? { label: "Year", value: publicationYear } : null,
-        { label: "Citations", value: String(publicationCitations ?? 0) },
-        publicationAuthorCount !== undefined
-            ? { label: "Authors", value: String(publicationAuthorCount) }
-            : null,
-    ].filter((stat): stat is { label: string; value: string } => stat !== null)
-    : [];
 const projectDemoUrl = collection === "projects" ? entry.data.demo_url : undefined;
 
 const meta = [];
@@ -69,7 +58,6 @@ const ogImage = entry.data.image || SITE.ogImage;
     sidebarVariant={hasSidebarSummary ? "article" : "publication"}
     sidebarSummaryTitle={collection === "projects" ? "In this project" : "In this post"}
     sidebarHeadings={sidebarHeadings}
-    sidebarPublicationStats={publicationStats}
 >
     <div class="flex justify-between items-center mb-4">
         <BackLink href={withBase(detail.backHref)} label={collection} />
@@ -102,10 +90,10 @@ const ogImage = entry.data.image || SITE.ogImage;
             </div>
         )}
 
-        {publicationAbstract && (
+        {publicationAbstractHtml && (
             <section class="publication-abstract">
                 <h2>Abstract</h2>
-                <p>{publicationAbstract}</p>
+                <div class="publication-abstract-content prose" set:html={publicationAbstractHtml} />
             </section>
         )}
 

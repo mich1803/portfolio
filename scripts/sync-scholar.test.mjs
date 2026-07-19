@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const syncScript = path.join(repositoryRoot, "scripts", "sync-scholar.mjs");
 
-test("Scholar synchronization is append-only and creates hidden publications with abstracts", async () => {
+test("Scholar synchronization only updates citations and creates hidden publications with abstracts", async () => {
     const fixtureRoot = await mkdtemp(path.join(tmpdir(), "scholar-sync-"));
 
     try {
@@ -45,11 +45,11 @@ test("Scholar synchronization is append-only and creates hidden publications wit
         const existingFiles = new Map([
             [
                 "manual-scholar-id.md",
-                "---\ntitle: \"Existing by Scholar ID\"\nscholar_id: \"existing-scholar-id\"\n---\n\nManually curated body.\n",
+                "---\r\ntitle: \"Existing by Scholar ID\"\r\nscholar_id: \"existing-scholar-id\"\r\ncited_by: 2\r\n---\r\n\r\nManually curated body.\r\n",
             ],
             [
                 "manual-publication-key.md",
-                "---\ntitle: \"Existing by publication key\"\npublication_key: \"existing-by-key-2024\"\n---\n\nKeep this body byte-for-byte.\n",
+                "---\ntitle: \"Existing by publication key\"\npublication_key: \"existing-by-key-2024\"\ncited_by: 4\n---\n\nKeep this body byte-for-byte.\n",
             ],
             [
                 "scholar-existing-by-filename-2023.md",
@@ -66,16 +66,19 @@ test("Scholar synchronization is append-only and creates hidden publications wit
                 title: "Renamed existing Scholar item",
                 year: "2020",
                 citation_id: "existing-scholar-id",
+                cited_by: { value: 5 },
             },
             {
                 title: "Existing by Key",
                 year: "2024",
                 citation_id: "key-match-has-a-different-id",
+                cited_by: { value: 4 },
             },
             {
                 title: "Existing by Filename",
                 year: "2023",
                 citation_id: "filename-match-has-a-different-id",
+                cited_by: { value: 3 },
             },
             {
                 title: "A Brand New Result",
@@ -118,11 +121,17 @@ test("Scholar synchronization is append-only and creates hidden publications wit
         );
 
         assert.equal(result.status, 0, result.stderr || result.stdout);
-        assert.match(result.stdout, /Added 1 new publication\(s\); left 3 existing publication\(s\) unchanged\./);
+        assert.match(result.stdout, /Added 1 new publication\(s\); updated citations for 2 existing publication\(s\); left 1 existing publication\(s\) unchanged\./);
 
         for (const [fileName, before] of existingFiles) {
             const after = await readFile(path.join(fixturePublications, fileName), "utf8");
-            assert.equal(after, before, `${fileName} was rewritten`);
+            if (fileName === "manual-scholar-id.md") {
+                assert.equal(after, before.replace("cited_by: 2", "cited_by: 5"));
+            } else if (fileName === "scholar-existing-by-filename-2023.md") {
+                assert.equal(after, before.replace("\n---\n\n", "\ncited_by: 3\n---\n\n"));
+            } else {
+                assert.equal(after, before, `${fileName} changed despite an identical citation count`);
+            }
         }
 
         const newKey = "a-brand-new-result-2026";

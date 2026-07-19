@@ -1,6 +1,7 @@
 ---
 name: "Michele Magrini"
 avatar: "images/michele_magrini.jpeg"
+avatarDark: "images/michele_magrini_dark.jpeg"
 shortBio: "M.Sc. student in Applied Mathematics for Artificial Intelligence and Student Researcher."
 institution: "Sapienza University"
 location: "Rome, Italy"

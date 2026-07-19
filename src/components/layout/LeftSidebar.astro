@@ -11,10 +11,10 @@ interface Props {
     compact?: boolean;
     showFeatured?: boolean;
     summaryTitle?: string;
-    publicationStats?: Array<{
-        label: string;
-        value: string;
-    }>;
+    cvDetails?: {
+        skills: Array<{ category: string; items: string }>;
+        languages: Array<{ language: string; proficiency: string }>;
+    };
     headings?: Array<{
         depth: number;
         slug: string;
@@ -26,7 +26,7 @@ const {
     compact = false,
     showFeatured = false,
     summaryTitle = "In this post",
-    publicationStats = [],
+    cvDetails,
     headings = [],
 } = Astro.props;
 
@@ -56,7 +56,7 @@ const featuredItems = showFeatured
                 title: entry.data.title,
                 type: featuredTypeLabels[selection.collection],
                 date: entry.data.date,
-                tags: entry.data.tags || [],
+                tags: (entry.data.tags || []).slice(0, 2),
                 description: entry.data.featured_description || entry.data.description,
                 href: `/${selection.collection}/${entry.id}`,
             };
@@ -66,7 +66,10 @@ const featuredItems = showFeatured
 ---
 
 <aside
-    class="sidebar max-lg:flex-row max-lg:flex-wrap max-lg:gap-3 max-md:gap-2"
+    class:list={[
+        "sidebar max-lg:flex-row max-lg:flex-wrap max-lg:gap-3 max-md:gap-2",
+        { "sidebar-has-featured-content": showFeatured },
+    ]}
 >
     <div
         class="flex flex-col items-center text-center max-lg:flex-row max-lg:items-center max-lg:gap-3 max-lg:text-left max-md:gap-2"
@@ -80,7 +83,22 @@ const featuredItems = showFeatured
                     height={160}
                     densities={[1.5, 2]}
                     format="webp"
-                    class="sidebar-avatar"
+                    class="sidebar-avatar sidebar-avatar-light"
+                    loading="eager"
+                />
+            )
+        }
+
+        {
+            bio?.avatar && (
+                <Image
+                    src={withBase(bio.avatarDark || bio.avatar)}
+                    alt={`Avatar of ${bio.name} for the dark theme`}
+                    width={160}
+                    height={160}
+                    densities={[1.5, 2]}
+                    format="webp"
+                    class="sidebar-avatar sidebar-avatar-dark"
                     loading="eager"
                 />
             )
@@ -140,6 +158,39 @@ const featuredItems = showFeatured
     </div>
 
     {
+        cvDetails && (
+            <section class="cv-sidebar-details" aria-label="Skills and languages">
+                {cvDetails.skills.length > 0 && (
+                    <div class="cv-sidebar-section">
+                        <p class="cv-sidebar-title">Skills</p>
+                        <dl class="cv-sidebar-list">
+                            {cvDetails.skills.map((skill) => (
+                                <div>
+                                    <dt>{skill.category}</dt>
+                                    <dd>{skill.items}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
+                )}
+                {cvDetails.languages.length > 0 && (
+                    <div class="cv-sidebar-section">
+                        <p class="cv-sidebar-title">Languages</p>
+                        <dl class="cv-sidebar-list">
+                            {cvDetails.languages.map((language) => (
+                                <div>
+                                    <dt>{language.language}</dt>
+                                    <dd>{language.proficiency}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
+                )}
+            </section>
+        )
+    }
+
+    {
         showFeatured && (
             <section class="featured-content" aria-labelledby="featured-content-title">
                 <p id="featured-content-title" class="featured-content-title">
@@ -174,24 +225,6 @@ const featuredItems = showFeatured
                         </li>
                     ))}
                 </ol>
-            </section>
-        )
-    }
-
-    {
-        publicationStats.length > 0 && (
-            <section class="sidebar-statistics" aria-labelledby="publication-statistics-title">
-                <p id="publication-statistics-title" class="sidebar-statistics-title">
-                    Publication snapshot
-                </p>
-                <dl class="sidebar-statistics-grid">
-                    {publicationStats.map((stat) => (
-                        <div class="sidebar-statistic">
-                            <dt>{stat.label}</dt>
-                            <dd>{stat.value}</dd>
-                        </div>
-                    ))}
-                </dl>
             </section>
         )
     }

@@ -23,13 +23,20 @@ education:
     institution: "ITIS Luigi Trafelli"
     period: "2017 - 2022 | Nettuno, Italy"
     description: "Specialized in computer science, software development, networking, and database systems."
+skills:
+  - category: "Programming"
+    items: "Python, SQL, Java, C/C++"
+  - category: "Machine Learning"
+    items: "PyTorch, TensorFlow, NumPy, explainable AI, model quantization, embedded AI, resource-constrained machine learning"
+  - category: "Data Science & Mathematics"
+    items: "Statistical inference, optimization, numerical methods, scientific computing, signal processing"
+languages:
+  - language: "Italian"
+    proficiency: "Native"
+  - language: "English"
+    proficiency: "Professional working proficiency"
+hobbies: "Basketball, graphic design, and content creation."
 ---
-
-## Skills Summary
-
-- **Programming:** Python, SQL, Java, C/C++
-- **Machine Learning:** PyTorch, TensorFlow, NumPy, explainable AI, model quantization, embedded AI, resource-constrained machine learning
-- **Data Science & Mathematics:** statistical inference, optimization, numerical methods, scientific computing, signal processing
 
 ## Activities
 
@@ -37,12 +44,3 @@ education:
 - **EGU26** - European Geosciences Union General Assembly, Vienna, Austria
 - **ICIAP 2025** - International Conference on Image Analysis and Processing, Rome, Italy
 - **Silicon Valley Fellowship** - Startup and venture capital immersion program, San Francisco, USA
-
-## Languages
-
-- **Italian:** Native
-- **English:** Professional working proficiency
-
-## Hobbies
-
-Basketball, graphic design, and content creation.

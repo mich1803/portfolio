@@ -425,142 +425,6 @@ a:hover,
     text-transform: uppercase;
 }
 
-.github-activity {
-    margin-top: 1.5rem;
-}
-
-.github-activity-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-}
-
-.github-activity-header h3 {
-    margin: 0;
-    color: var(--foreground);
-    font-size: 0.95rem;
-    font-weight: 800;
-}
-
-.github-activity-header p {
-    margin: 0.2rem 0 0;
-    color: var(--text-muted);
-    font-size: 0.75rem;
-}
-
-.github-range-picker {
-    display: inline-flex;
-    gap: 0.2rem;
-    padding: 0.2rem;
-    border: 1px solid var(--border);
-    border-radius: 0.4rem;
-    background: var(--background);
-}
-
-.github-range-picker button {
-    padding: 0.35rem 0.55rem;
-    border: 0;
-    border-radius: 0.25rem;
-    background: transparent;
-    color: var(--text-muted);
-    font: inherit;
-    font-size: 0.68rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.github-range-picker button:hover:not(:disabled) {
-    color: var(--foreground);
-}
-
-.github-range-picker button.is-active {
-    background: var(--surface);
-    color: var(--accent);
-}
-
-.github-range-picker button:disabled {
-    cursor: wait;
-    opacity: 0.55;
-}
-
-.github-contribution-panel {
-    padding: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    background: var(--background);
-}
-
-.github-contribution-scroll {
-    max-width: 100%;
-    padding-bottom: 0.4rem;
-    overflow-x: auto;
-    scrollbar-width: thin;
-}
-
-.github-contribution-grid {
-    display: grid;
-    grid-template-rows: repeat(7, 10px);
-    grid-auto-flow: column;
-    grid-auto-columns: 10px;
-    justify-content: end;
-    gap: 3px;
-    width: max-content;
-    min-width: 100%;
-}
-
-.github-contribution-cell {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
-    border-radius: 2px;
-    background: var(--surface);
-    transition: border-color 0.15s ease, transform 0.15s ease;
-}
-
-.github-contribution-grid .github-contribution-cell:not(.is-loading):not(.is-empty):hover {
-    z-index: 1;
-    border-color: var(--foreground);
-    transform: scale(1.45);
-}
-
-.github-contribution-cell[data-level="1"] {
-    background: color-mix(in srgb, var(--accent) 28%, var(--surface));
-}
-
-.github-contribution-cell[data-level="2"] {
-    background: color-mix(in srgb, var(--accent) 48%, var(--surface));
-}
-
-.github-contribution-cell[data-level="3"] {
-    background: color-mix(in srgb, var(--accent) 72%, var(--surface));
-}
-
-.github-contribution-cell[data-level="4"] {
-    background: var(--accent);
-}
-
-.github-contribution-cell.is-empty {
-    visibility: hidden;
-}
-
-.github-contribution-cell.is-loading {
-    opacity: 0.55;
-    animation: github-cell-pulse 1.4s ease-in-out infinite alternate;
-}
-
-.github-contribution-legend {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.3rem;
-    margin-top: 0.65rem;
-    color: var(--text-muted);
-    font-size: 0.65rem;
-}
-
 .github-overview-status {
     margin: 0.6rem 0 0;
     color: var(--text-muted);
@@ -568,18 +432,12 @@ a:hover,
     line-height: 1.4;
 }
 
-@keyframes github-cell-pulse {
-    from { opacity: 0.25; }
-    to { opacity: 0.7; }
-}
-
 @media (max-width: 640px) {
     .github-overview {
         padding: 1rem;
     }
 
-    .github-overview-header,
-    .github-activity-header {
+    .github-overview-header {
         align-items: stretch;
         flex-direction: column;
     }
@@ -592,9 +450,6 @@ a:hover,
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .github-range-picker {
-        align-self: flex-start;
-    }
 }
 
 @media (max-width: 420px) {
@@ -693,9 +548,11 @@ a:hover,
     flex-shrink: 0;
     background: var(--background);
     transition: background 0.3s ease;
+    overflow-y: auto;
 }
 
 .sidebar-avatar {
+    display: block;
     width: 160px;
     height: 160px;
     border-radius: 50%;
@@ -726,6 +583,18 @@ a:hover,
     margin-top: 0.25rem;
 }
 
+.sidebar-avatar-dark {
+    display: none;
+}
+
+[data-theme="dark"] .sidebar-avatar-light {
+    display: none;
+}
+
+[data-theme="dark"] .sidebar-avatar-dark {
+    display: block;
+}
+
 .sidebar-affiliation-text {
     display: flex;
     flex-direction: column;
@@ -749,8 +618,16 @@ a:hover,
 
 .featured-content {
     min-height: 0;
+    margin-top: auto;
     padding-top: 1.25rem;
     border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.sidebar-has-featured-content::after {
+    display: block;
+    flex: 0 0 4rem;
+    content: "";
 }
 
 .featured-content-title {
@@ -835,13 +712,15 @@ a:hover,
     line-height: 1.2;
 }
 
-.sidebar-statistics {
-    min-height: 0;
+.cv-sidebar-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
     padding-top: 1.25rem;
     border-top: 1px solid var(--border);
 }
 
-.sidebar-statistics-title {
+.cv-sidebar-title {
     margin-bottom: 0.65rem;
     color: var(--text-muted);
     font-size: 0.75rem;
@@ -850,35 +729,28 @@ a:hover,
     text-transform: uppercase;
 }
 
-.sidebar-statistics-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.4rem;
+.cv-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
     margin: 0;
 }
 
-.sidebar-statistic {
-    min-width: 0;
-    padding: 0.55rem 0.25rem;
-    border: 1px solid var(--border);
-    border-radius: 0.3rem;
-    background: var(--surface);
-    text-align: center;
-}
-
-.sidebar-statistic dt {
-    color: var(--text-muted);
-    font-size: 0.55rem;
+.cv-sidebar-list dt {
+    color: var(--foreground);
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
 }
 
-.sidebar-statistic dd {
-    margin-top: 0.2rem;
-    color: var(--accent);
-    font-size: 0.9rem;
-    font-weight: 800;
+.cv-sidebar-list dd {
+    margin-top: 0.15rem;
+    color: var(--text-muted);
+    font-size: 0.66rem;
+    line-height: 1.45;
+}
+
+.cv-mobile-details {
+    display: none;
 }
 
 .post-toc {
@@ -1398,24 +1270,17 @@ a:hover,
         display: none;
     }
 
-    .featured-content {
-        flex: 1 0 100%;
-        padding-top: 1rem;
+    .featured-content,
+    .cv-sidebar-details {
+        display: none;
     }
 
-    .featured-content-list {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.75rem;
+    .sidebar-has-featured-content::after {
+        display: none;
     }
 
-    .featured-content-item,
-    .featured-content-item:first-child,
-    .featured-content-item:last-child {
-        padding: 0.75rem;
-        border: 1px solid var(--border);
-        border-radius: 0.35rem;
-        background: var(--surface);
+    .cv-mobile-details {
+        display: block;
     }
 
     .main-body {
@@ -1447,10 +1312,6 @@ a:hover,
         display: none;
     }
 
-    .featured-content-list {
-        grid-template-columns: 1fr;
-    }
-
     .main-body {
         padding: 0.75rem 1rem;
     }
@@ -1473,10 +1334,16 @@ a:hover,
     font-size: 1.25rem;
 }
 
-.publication-abstract p {
-    margin: 0;
-    font-size: 1rem;
-    line-height: 1.7;
+.publication-abstract-content {
+    max-width: none;
+}
+
+.publication-abstract-content > :first-child {
+    margin-top: 0;
+}
+
+.publication-abstract-content > :last-child {
+    margin-bottom: 0;
 }
 
 .publication-details {

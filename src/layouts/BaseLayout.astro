@@ -26,12 +26,12 @@ interface Props {
     ogImage?: string;
     ogType?: "website" | "article";
     robots?: "index, follow" | "noindex, nofollow";
-    sidebarVariant?: "main" | "article" | "publication" | "plain";
+    sidebarVariant?: "default" | "about" | "listing" | "article" | "publication" | "cv" | "plain";
     sidebarSummaryTitle?: string;
-    sidebarPublicationStats?: Array<{
-        label: string;
-        value: string;
-    }>;
+    sidebarCvDetails?: {
+        skills: Array<{ category: string; items: string }>;
+        languages: Array<{ language: string; proficiency: string }>;
+    };
     sidebarHeadings?: Array<{
         depth: number;
         slug: string;
@@ -45,9 +45,9 @@ const {
     ogImage = SITE.ogImage,
     ogType = "website",
     robots = "index, follow",
-    sidebarVariant = "main",
+    sidebarVariant = "default",
     sidebarSummaryTitle = "In this post",
-    sidebarPublicationStats = [],
+    sidebarCvDetails,
     sidebarHeadings = [],
 } = Astro.props;
 
@@ -241,10 +241,10 @@ const jsonLd = {
         <div class="flex max-lg:flex-col mx-auto max-w-6xl w-full min-h-screen">
             <LeftSidebar
                 compact={sidebarVariant === "article" || sidebarVariant === "publication"}
-                showFeatured={sidebarVariant === "main"}
+                showFeatured={sidebarVariant === "about" || sidebarVariant === "listing"}
                 headings={sidebarHeadings}
                 summaryTitle={sidebarSummaryTitle}
-                publicationStats={sidebarPublicationStats}
+                cvDetails={sidebarCvDetails}
             />
             <RightMain>
                 <slot />

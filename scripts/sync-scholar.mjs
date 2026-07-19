@@ -67,6 +67,17 @@ function normalizeCitations(citedBy) {
     return Number.isFinite(citations) && citations >= 0 ? Math.trunc(citations) : 0;
 }
 
+function citationCountFromArticle(article) {
+    const citedBy = article?.cited_by;
+    if (citedBy === undefined || citedBy === null) return undefined;
+
+    const value = typeof citedBy === "object" ? citedBy.value ?? citedBy.total : citedBy;
+    if (value === undefined || value === null || value === "") return undefined;
+
+    const citations = Number(value);
+    return Number.isFinite(citations) && citations >= 0 ? Math.trunc(citations) : undefined;
+}
+
 function compactText(value) {
     return String(value || "").replace(/\s+/g, " ").trim();
 }
@@ -94,22 +105,42 @@ function frontmatterValue(markdown, field) {
 
 async function readExistingPublications() {
     const entries = await readdir(publicationsRoot, { withFileTypes: true });
-    const keys = new Set();
-    const scholarIds = new Set();
-    const fileNames = new Set();
+    const byKey = new Map();
+    const byScholarId = new Map();
+    const byFileName = new Map();
 
     for (const entry of entries) {
         if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
-        fileNames.add(entry.name);
-
-        const markdown = await readFile(path.join(publicationsRoot, entry.name), "utf8");
+        const filePath = path.join(publicationsRoot, entry.name);
+        const markdown = await readFile(filePath, "utf8");
         const key = frontmatterValue(markdown, "publication_key");
         const scholarId = frontmatterValue(markdown, "scholar_id");
-        if (key) keys.add(key);
-        if (scholarId) scholarIds.add(scholarId);
+        const publication = { fileName: entry.name, filePath, markdown, key, scholarId };
+
+        byFileName.set(entry.name, publication);
+        if (key) byKey.set(key, publication);
+        if (scholarId) byScholarId.set(scholarId, publication);
     }
 
-    return { keys, scholarIds, fileNames };
+    return { byKey, byScholarId, byFileName };
+}
+
+function updateCitationCount(markdown, citations) {
+    const current = frontmatterValue(markdown, "cited_by");
+    if (current !== undefined && Number(current) === citations) return markdown;
+
+    if (/^cited_by:\s*[^\r\n]*(\r?)$/m.test(markdown)) {
+        return markdown.replace(
+            /^(cited_by:\s*)[^\r\n]*(\r?)$/m,
+            `$1${citations}$2`,
+        );
+    }
+
+    const lineEnding = markdown.includes("\r\n") ? "\r\n" : "\n";
+    const frontmatterEnd = markdown.indexOf(`${lineEnding}---`, 3);
+    if (frontmatterEnd === -1) return markdown;
+
+    return `${markdown.slice(0, frontmatterEnd)}${lineEnding}cited_by: ${citations}${markdown.slice(frontmatterEnd)}`;
 }
 
 function renderPublication(article, details, config) {
@@ -230,14 +261,34 @@ async function main() {
     const existing = await readExistingPublications();
     let configChanged = false;
     let added = 0;
+    let citationsUpdated = 0;
     let unchanged = 0;
 
     for (const article of articles) {
         const key = publicationKey(article);
         const fileName = `scholar-${key}.md`;
 
-        if (existing.keys.has(key) || existing.fileNames.has(fileName) || (article.citation_id && existing.scholarIds.has(article.citation_id))) {
-            unchanged += 1;
+        const existingPublication =
+            (article.citation_id && existing.byScholarId.get(article.citation_id)) ||
+            existing.byKey.get(key) ||
+            existing.byFileName.get(fileName);
+
+        if (existingPublication) {
+            const citations = citationCountFromArticle(article);
+            if (citations === undefined) {
+                unchanged += 1;
+                continue;
+            }
+
+            const updatedMarkdown = updateCitationCount(existingPublication.markdown, citations);
+            if (updatedMarkdown === existingPublication.markdown) {
+                unchanged += 1;
+                continue;
+            }
+
+            await writeFile(existingPublication.filePath, updatedMarkdown, "utf8");
+            existingPublication.markdown = updatedMarkdown;
+            citationsUpdated += 1;
             continue;
         }
 
@@ -256,9 +307,6 @@ async function main() {
         const rendered = renderPublication(article, details, config);
         try {
             await writeFile(path.join(publicationsRoot, fileName), rendered.markdown, { encoding: "utf8", flag: "wx" });
-            existing.keys.add(key);
-            existing.fileNames.add(fileName);
-            if (article.citation_id) existing.scholarIds.add(article.citation_id);
             added += 1;
         } catch (error) {
             if (error.code === "EEXIST") {
@@ -273,7 +321,7 @@ async function main() {
         await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
     }
 
-    console.log(`[scholar] Added ${added} new publication(s); left ${unchanged} existing publication(s) unchanged.`);
+    console.log(`[scholar] Added ${added} new publication(s); updated citations for ${citationsUpdated} existing publication(s); left ${unchanged} existing publication(s) unchanged.`);
 }
 
 main().catch((error) => {

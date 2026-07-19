@@ -42,6 +42,7 @@ const bio = defineCollection({
     schema: z.object({
         name: z.string(),
         avatar: z.string(),
+        avatarDark: z.string().optional(),
         shortBio: z.string().optional(),
         institution: z.string().optional(),
         location: z.string().optional(),
@@ -82,6 +83,15 @@ const cv = defineCollection({
             thesis: z.string().optional(),
             description: z.string().optional(),
         })).optional(),
+        skills: z.array(z.object({
+            category: z.string(),
+            items: z.string(),
+        })).optional(),
+        languages: z.array(z.object({
+            language: z.string(),
+            proficiency: z.string(),
+        })).optional(),
+        hobbies: z.string().optional(),
     }),
 });
 

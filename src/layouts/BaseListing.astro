@@ -24,7 +24,7 @@ const sortedEntries = entries.sort((a: any, b: any) => {
 });
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} sidebarVariant="listing">
     {(title || subtitle) && (
         <header class="page-header">
             {title && <h1 class="page-title">{title}</h1>}

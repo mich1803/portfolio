@@ -16,10 +16,20 @@ if (!cvEntry) {
 }
 
 const { Content } = await render(cvEntry);
-const { name, title, experience = [], education = [] } = cvEntry.data;
+const {
+    experience = [],
+    education = [],
+    skills = [],
+    languages = [],
+    hobbies,
+} = cvEntry.data;
 ---
 
-<BaseLayout title={PAGES.cv.title}>
+<BaseLayout
+    title={PAGES.cv.title}
+    sidebarVariant="cv"
+    sidebarCvDetails={{ skills, languages }}
+>
     <header class="page-header">
         <h1 class="page-title">{PAGES.cv.title}</h1>
         <p class="page-subtitle">{PAGES.cv.subtitle}</p>
@@ -59,9 +69,45 @@ const { name, title, experience = [], education = [] } = cvEntry.data;
             )
         }
 
+        {(skills.length > 0 || languages.length > 0 || hobbies) && (
+            <div class="cv-mobile-details prose max-w-none">
+                {skills.length > 0 && (
+                    <section>
+                        <h2>Skills Summary</h2>
+                        <ul>
+                            {skills.map((skill) => (
+                                <li><strong>{skill.category}:</strong> {skill.items}</li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
+            </div>
+        )}
+
         <div class="prose max-w-none">
             <Content />
         </div>
+
+        {(languages.length > 0 || hobbies) && (
+            <div class="cv-mobile-details prose max-w-none">
+                {languages.length > 0 && (
+                    <section>
+                        <h2>Languages</h2>
+                        <ul>
+                            {languages.map((language) => (
+                                <li><strong>{language.language}:</strong> {language.proficiency}</li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
+                {hobbies && (
+                    <section>
+                        <h2>Hobbies</h2>
+                        <p>{hobbies}</p>
+                    </section>
+                )}
+            </div>
+        )}
     </div>
 </BaseLayout>
 

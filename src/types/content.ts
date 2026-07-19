@@ -1,6 +1,7 @@
 export interface Bio {
     name: string;
     avatar: string;
+    avatarDark?: string;
     shortBio?: string;
     institution?: string;
 }
@@ -25,6 +26,9 @@ export interface CV {
   title: string;
   experience: ExperienceItem[];
   education: EducationItem[];
+  skills: Array<{ category: string; items: string }>;
+  languages: Array<{ language: string; proficiency: string }>;
+  hobbies?: string;
 }
 
 export interface BasePage {
