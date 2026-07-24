@@ -3,6 +3,7 @@ import { SOCIALS, SOCIAL_ICONS } from "../../config";
 import { getCollection } from "astro:content";
 import Icon from "../ui/Icon.astro";
 import FeaturedContent from "./FeaturedContent.astro";
+import CitationCard from "./CitationCard.astro";
 import { Image } from "astro:assets";
 import { withBase } from "../../utils/paths";
 
@@ -11,6 +12,7 @@ const activeSocials = SOCIALS.filter((social) => social.isActive);
 interface Props {
     compact?: boolean;
     showFeatured?: boolean;
+    citation?: string;
     summaryTitle?: string;
     cvDetails?: {
         skills: Array<{ category: string; items: string }>;
@@ -26,6 +28,7 @@ interface Props {
 const {
     compact = false,
     showFeatured = false,
+    citation,
     summaryTitle = "In this post",
     cvDetails,
     headings = [],
@@ -163,6 +166,8 @@ const bio = bioCollection[0]?.data;
     {
         showFeatured && <FeaturedContent class="sidebar-featured-content" />
     }
+
+    {citation && <CitationCard citation={citation} />}
 
     {
         compact && headings.length > 0 && (

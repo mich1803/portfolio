@@ -1,0 +1,51 @@
+---
+interface Props {
+    citation: string;
+}
+
+const { citation } = Astro.props;
+---
+
+<section class="citation-card" aria-labelledby="citation-card-title">
+    <div class="citation-card-header">
+        <p id="citation-card-title" class="citation-card-title">How to cite</p>
+        <button type="button" class="citation-copy-button" data-copy-citation>
+            <span data-copy-citation-label>Copy</span>
+        </button>
+    </div>
+    <pre class="citation-code"><code>{citation}</code></pre>
+</section>
+
+<script>
+    function initCitationCopyButtons() {
+        document
+            .querySelectorAll<HTMLButtonElement>("[data-copy-citation]")
+            .forEach((button) => {
+                if (button.dataset.copyReady === "true") return;
+                button.dataset.copyReady = "true";
+
+                button.addEventListener("click", async () => {
+                    const card = button.closest<HTMLElement>(".citation-card");
+                    const code = card?.querySelector("code")?.textContent;
+                    const label = button.querySelector<HTMLElement>(
+                        "[data-copy-citation-label]",
+                    );
+                    if (!code || !label) return;
+
+                    try {
+                        await navigator.clipboard.writeText(code);
+                        label.textContent = "Copied";
+                        button.classList.add("is-copied");
+                        window.setTimeout(() => {
+                            label.textContent = "Copy";
+                            button.classList.remove("is-copied");
+                        }, 1800);
+                    } catch {
+                        label.textContent = "Copy failed";
+                    }
+                });
+            });
+    }
+
+    document.addEventListener("astro:page-load", initCitationCopyButtons);
+</script>

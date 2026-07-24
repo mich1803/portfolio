@@ -56,6 +56,7 @@ export interface Publication extends BasePage {
   author?: string;
   journal?: string;
   external_url?: string;
+  video_embed_url?: string;
   abstract?: string;
   type?: false | string;
   publication_key?: string;

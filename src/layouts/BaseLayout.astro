@@ -28,6 +28,7 @@ interface Props {
     robots?: "index, follow" | "noindex, nofollow";
     sidebarVariant?: "default" | "about" | "listing" | "article" | "publication" | "cv" | "plain";
     sidebarSummaryTitle?: string;
+    sidebarCitation?: string;
     sidebarCvDetails?: {
         skills: Array<{ category: string; items: string }>;
         languages: Array<{ language: string; proficiency: string }>;
@@ -47,6 +48,7 @@ const {
     robots = "index, follow",
     sidebarVariant = "default",
     sidebarSummaryTitle = "In this post",
+    sidebarCitation,
     sidebarCvDetails,
     sidebarHeadings = [],
 } = Astro.props;
@@ -244,6 +246,7 @@ const jsonLd = {
                 showFeatured={sidebarVariant === "about" || sidebarVariant === "listing"}
                 headings={sidebarHeadings}
                 summaryTitle={sidebarSummaryTitle}
+                citation={sidebarCitation}
                 cvDetails={sidebarCvDetails}
             />
             <RightMain>

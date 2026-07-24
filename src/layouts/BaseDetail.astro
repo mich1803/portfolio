@@ -8,6 +8,7 @@ import { getDetailItem } from "../utils/adapters";
 import { withBase } from "../utils/paths";
 import { SITE } from "../config";
 import { renderMarkdown } from "../utils/markdown";
+import { createPublicationBibtex } from "../utils/citations";
 
 interface Props {
     collection: "publications" | "projects" | "posts";
@@ -35,7 +36,13 @@ const publicationCitations = collection === "publications" && typeof entry.data.
 const publicationSource = collection === "publications" && entry.data.source
     ? entry.data.source === "google-scholar" ? "Google Scholar" : entry.data.source
     : undefined;
+const publicationVideoEmbedUrl = collection === "publications"
+    ? entry.data.video_embed_url
+    : undefined;
 const projectDemoUrl = collection === "projects" ? entry.data.demo_url : undefined;
+const publicationBibtex = collection === "publications"
+    ? createPublicationBibtex(entry.data)
+    : undefined;
 
 const meta = [];
 if (detail.date) meta.push({ label: "Date", value: detail.date, icon: "Calendar" });
@@ -58,6 +65,7 @@ const ogImage = entry.data.image || SITE.ogImage;
     sidebarVariant={hasSidebarSummary ? "article" : "publication"}
     sidebarSummaryTitle={collection === "projects" ? "In this project" : "In this post"}
     sidebarHeadings={sidebarHeadings}
+    sidebarCitation={publicationBibtex}
 >
     <div class="flex justify-between items-center mb-4">
         <BackLink href={withBase(detail.backHref)} label={collection} />
@@ -88,6 +96,22 @@ const ogImage = entry.data.image || SITE.ogImage;
                     <Tag name={tag} size="sm" />
                 ))}
             </div>
+        )}
+
+        {publicationVideoEmbedUrl && (
+            <section class="publication-video" aria-labelledby="publication-video-title">
+                <h2 id="publication-video-title">Presentation video</h2>
+                <div class="publication-video-player">
+                    <iframe
+                        src={publicationVideoEmbedUrl}
+                        title={`Presentation video for ${detail.title}`}
+                        loading="lazy"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowfullscreen
+                        referrerpolicy="strict-origin-when-cross-origin"
+                    ></iframe>
+                </div>
+            </section>
         )}
 
         {publicationAbstractHtml && (

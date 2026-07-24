@@ -10,6 +10,7 @@ const publications = defineCollection({
         date: z.string().optional(),
         journal: z.string().optional(),
         external_url: z.string().optional(),
+        video_embed_url: z.string().url().optional(),
         image: z.string().optional(),
         description: z.string().optional(),
         abstract: z.string().optional(),
