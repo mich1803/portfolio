@@ -3,8 +3,10 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import BaseItemCard from "../components/ui/BaseItemCard.astro";
 import { getListingItem } from "../utils/adapters";
-import { isPublicationVisible } from "../utils/publications";
+import { getPublicationType, isPublicationVisible } from "../utils/publications";
 import { withBase } from "../utils/paths";
+import { getContentLanguage } from "../utils/language";
+import { UI_TRANSLATIONS } from "../config/i18n";
 
 interface Props {
     collection: "publications" | "projects" | "posts";
@@ -14,8 +16,23 @@ interface Props {
 
 const { collection, title, subtitle } = Astro.props;
 
-let entries = await getCollection(collection);
+const allEntries = await getCollection(collection);
+let entries = allEntries.filter((entry: any) => !entry.data.translation_of);
 if (collection === "publications") entries = entries.filter(isPublicationVisible);
+
+const translationsByOriginal = new Map<string, any[]>();
+allEntries.forEach((entry: any) => {
+    if (!entry.data.translation_of) return;
+    const translations = translationsByOriginal.get(entry.data.translation_of) || [];
+    translations.push(entry);
+    translationsByOriginal.set(entry.data.translation_of, translations);
+});
+
+const pageKey = collection === "posts" ? "blog" : collection;
+const titleKey = `page.${pageKey}.title` as keyof typeof UI_TRANSLATIONS;
+const subtitleKey = `page.${pageKey}.subtitle` as keyof typeof UI_TRANSLATIONS;
+const titleIt = UI_TRANSLATIONS[titleKey]?.it || title;
+const subtitleIt = UI_TRANSLATIONS[subtitleKey]?.it || subtitle;
 
 const sortedEntries = entries.sort((a: any, b: any) => {
     const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
@@ -24,11 +41,11 @@ const sortedEntries = entries.sort((a: any, b: any) => {
 });
 ---
 
-<BaseLayout title={title} sidebarVariant="listing">
+<BaseLayout title={title} titleIt={titleIt} description={subtitle} descriptionIt={subtitleIt} sidebarVariant="listing">
     {(title || subtitle) && (
         <header class="page-header">
-            {title && <h1 class="page-title">{title}</h1>}
-            {subtitle && <p class="page-subtitle">{subtitle}</p>}
+            {title && <h1 class="page-title" data-i18n={titleKey}>{title}</h1>}
+            {subtitle && <p class="page-subtitle" data-i18n={subtitleKey}>{subtitle}</p>}
         </header>
     )}
 
@@ -37,7 +54,30 @@ const sortedEntries = entries.sort((a: any, b: any) => {
     <section class="item-list">
         {sortedEntries.map((entry: any) => {
             const item = getListingItem(entry, collection);
-            return <BaseItemCard {...item} href={withBase(`/${collection}/${entry.id}`)} />;
+            const variants = [entry, ...(translationsByOriginal.get(entry.id) || [])]
+                .sort((a: any, b: any) => getContentLanguage(a.data) === "en" ? -1 : 1)
+                .map((variant: any) => ({
+                    language: getContentLanguage(variant.data),
+                    isOriginal: variant.data.translation_status === "original",
+                    title: variant.data.title,
+                    description: variant.data.description,
+                    authors: variant.data.author,
+                    tags: [
+                        ...(collection === "publications" && getPublicationType(variant)
+                            ? [getPublicationType(variant) as string]
+                            : []),
+                        ...(variant.data.tags || []),
+                    ],
+                    extraInput: variant.data.journal || variant.data.event || variant.data.institution,
+                }));
+
+            return (
+                <BaseItemCard
+                    {...item}
+                    href={withBase(`/${collection}/${entry.id}`)}
+                    contentVariants={variants}
+                />
+            );
         })}
     </section>
 

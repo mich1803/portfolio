@@ -21,6 +21,9 @@ const publications = defineCollection({
         scholar_id: z.string().optional(),
         cited_by: z.number().int().nonnegative().optional(),
         source: z.string().optional(),
+        language: z.enum(["en", "it"]).default("en"),
+        translation_status: z.enum(["original", "ai", "human"]).default("original"),
+        translation_of: z.string().optional(),
     }),
 });
 
@@ -35,11 +38,14 @@ const posts = defineCollection({
         tags: z.array(z.string()).optional(),
         external_url: z.string().optional(),
         image: z.string().optional(),
+        language: z.enum(["en", "it"]).default("en"),
+        translation_status: z.enum(["original", "ai", "human"]).default("original"),
+        translation_of: z.string().optional(),
     }),
 });
 
 const bio = defineCollection({
-    loader: glob({ pattern: "bio.md", base: "./src/content" }),
+    loader: glob({ pattern: "bio*.md", base: "./src/content" }),
     schema: z.object({
         name: z.string(),
         avatar: z.string(),
@@ -47,6 +53,9 @@ const bio = defineCollection({
         shortBio: z.string().optional(),
         institution: z.string().optional(),
         location: z.string().optional(),
+        language: z.enum(["en", "it"]).default("en"),
+        translation_status: z.enum(["original", "ai", "human"]).default("original"),
+        translation_of: z.string().optional(),
     }),
 });
 
@@ -63,11 +72,14 @@ const projects = defineCollection({
         external_url: z.string().optional(),
         demo_url: z.string().url().optional(),
         image: z.string().optional(),
+        language: z.enum(["en", "it"]).default("en"),
+        translation_status: z.enum(["original", "ai", "human"]).default("original"),
+        translation_of: z.string().optional(),
     }),
 });
 
 const cv = defineCollection({
-    loader: glob({ pattern: "cv.md", base: "./src/content" }),
+    loader: glob({ pattern: "cv*.md", base: "./src/content" }),
     schema: z.object({
         name: z.string(),
         title: z.string(),
@@ -93,6 +105,9 @@ const cv = defineCollection({
             proficiency: z.string(),
         })).optional(),
         hobbies: z.string().optional(),
+        language: z.enum(["en", "it"]).default("en"),
+        translation_status: z.enum(["original", "ai", "human"]).default("original"),
+        translation_of: z.string().optional(),
     }),
 });
 

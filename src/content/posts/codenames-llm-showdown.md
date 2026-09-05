@@ -189,7 +189,7 @@ For last, we are showing two of the matches we played. You can find more on [htt
 
 Red used Claude 3.5 Haiku as both Spymaster and its three Operatives; blue used Claude 3.5 Sonnet in the same three-Operative configuration. Red started with eight words, blue with seven.
 
-<details class="game-transcript">
+<details class="game-transcript" data-transcript-source="codenames-claude">
 <summary>Open the full game</summary>
 
 #### Turn 1 - Red: `BODY 4`
@@ -535,7 +535,7 @@ Sonnet ultimately won because its final clue became conservative when only one c
 
 The human controlled the red Spymaster and guesses. GPT-4o Mini controlled the blue Spymaster and three blue Operatives. Red started with eight cards and blue with seven.
 
-<details class="game-transcript">
+<details class="game-transcript" data-transcript-source="codenames-human">
 <summary>Open the full game</summary>
 
 #### Turn 1 - Red: `WATER 2`

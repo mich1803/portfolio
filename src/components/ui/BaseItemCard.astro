@@ -7,33 +7,74 @@ interface Props {
     href: string;
     description?: string;
     date?: string;
+    dateValue?: string;
     authors?: string;
     extraInput?: string;
     tags?: string[];
     externalUrl?: string;
+    contentVariants?: Array<{
+        language: "en" | "it";
+        isOriginal: boolean;
+        title: string;
+        description?: string;
+        authors?: string;
+        tags?: string[];
+        extraInput?: string;
+    }>;
 }
 
-const { title, href, description, date, authors, extraInput, tags, externalUrl } = Astro.props;
+const {
+    title,
+    href,
+    description,
+    date,
+    dateValue,
+    authors,
+    extraInput,
+    tags,
+    externalUrl,
+    contentVariants = [],
+} = Astro.props;
+const hasItalianVariant = contentVariants.some((variant) => variant.language === "it");
+const defaultLanguage = contentVariants.some((variant) => variant.language === "en")
+    ? "en"
+    : contentVariants.find((variant) => variant.isOriginal)?.language;
 ---
 
 <article class="card">
     <div class="card-content">
-        <a href={href} class="card-title">{title}</a>
+        {contentVariants.length > 0 ? (
+            <div data-language-variants data-has-it={String(hasItalianVariant)}>
+                {contentVariants.map((variant) => (
+                    <a
+                        href={href}
+                        class="card-title"
+                        data-language-variant={variant.language}
+                        data-language-original={String(variant.isOriginal)}
+                        hidden={variant.language !== defaultLanguage}
+                    >
+                        {variant.title}
+                    </a>
+                ))}
+            </div>
+        ) : (
+            <a href={href} class="card-title">{title}</a>
+        )}
 
         <div class="card-meta">
             {date && (
                 <span class="flex items-center gap-1">
                     <Icon name="Calendar" size={24} />
-                    <span>{date}</span>
+                    <time datetime={dateValue} data-localized-date>{date}</time>
                 </span>
             )}
-            {authors && (
+            {authors && contentVariants.length === 0 && (
                 <span class="flex items-center gap-1">
                     <Icon name="User" size={24} />
                     <span>{authors}</span>
                 </span>
             )}
-            {extraInput && (
+            {extraInput && contentVariants.length === 0 && (
                 <span class="flex items-center gap-1">
                     <Icon name="Institution" size={24} />
                     <span>{extraInput}</span>
@@ -41,8 +82,40 @@ const { title, href, description, date, authors, extraInput, tags, externalUrl }
             )}
         </div>
 
+        {contentVariants.length > 0 && contentVariants.some((variant) => variant.authors) && (
+            <div class="card-meta" data-language-variants data-has-it={String(hasItalianVariant)}>
+                {contentVariants.map((variant) => variant.authors && (
+                    <span
+                        class="flex items-center gap-1"
+                        data-language-variant={variant.language}
+                        data-language-original={String(variant.isOriginal)}
+                        hidden={variant.language !== defaultLanguage}
+                    >
+                        <Icon name="User" size={24} />
+                        <span>{variant.authors}</span>
+                    </span>
+                ))}
+            </div>
+        )}
+
+        {contentVariants.length > 0 && contentVariants.some((variant) => variant.extraInput) && (
+            <div class="card-meta" data-language-variants data-has-it={String(hasItalianVariant)}>
+                {contentVariants.map((variant) => variant.extraInput && (
+                    <span
+                        class="flex items-center gap-1"
+                        data-language-variant={variant.language}
+                        data-language-original={String(variant.isOriginal)}
+                        hidden={variant.language !== defaultLanguage}
+                    >
+                        <Icon name="Institution" size={24} />
+                        <span>{variant.extraInput}</span>
+                    </span>
+                ))}
+            </div>
+        )}
+
         {
-            tags && tags.length > 0 && (
+            tags && tags.length > 0 && contentVariants.length === 0 && (
                 <div class="flex gap-2 flex-wrap mb-3">
                     {tags.map((tag) => (
                         <Tag name={tag} size="sm" />
@@ -51,14 +124,42 @@ const { title, href, description, date, authors, extraInput, tags, externalUrl }
             )
         }
 
-        {description && <p class="card-desc">{description}</p>}
+        {contentVariants.length > 0 && contentVariants.some((variant) => variant.tags?.length) && (
+            <div data-language-variants data-has-it={String(hasItalianVariant)}>
+                {contentVariants.map((variant) => variant.tags && variant.tags.length > 0 && (
+                    <div
+                        class="flex gap-2 flex-wrap mb-3"
+                        data-language-variant={variant.language}
+                        data-language-original={String(variant.isOriginal)}
+                        hidden={variant.language !== defaultLanguage}
+                    >
+                        {variant.tags.map((tag) => <Tag name={tag} size="sm" />)}
+                    </div>
+                ))}
+            </div>
+        )}
+
+        {contentVariants.length > 0 ? (
+            <div data-language-variants data-has-it={String(hasItalianVariant)}>
+                {contentVariants.map((variant) => variant.description && (
+                    <p
+                        class="card-desc"
+                        data-language-variant={variant.language}
+                        data-language-original={String(variant.isOriginal)}
+                        hidden={variant.language !== defaultLanguage}
+                    >
+                        {variant.description}
+                    </p>
+                ))}
+            </div>
+        ) : description && <p class="card-desc">{description}</p>}
     </div>
 
     {
         externalUrl && (
             <div class="flex-shrink-0">
                 <a href={externalUrl} target="_blank" rel="noopener noreferrer" class="card-link">
-                    View
+                    <span data-i18n="detail.view">View</span>
                 </a>
             </div>
         )

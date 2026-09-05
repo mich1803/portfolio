@@ -6,7 +6,7 @@ const normalizePath = (path: string) => path.replace(/\/+$/, "") || "/";
 const currentPath = normalizePath(Astro.url.pathname);
 ---
 
-<nav class="navbar">
+<nav class="navbar" aria-label="Primary navigation" data-i18n-aria-label="nav.primary">
     <ul class="nav-links">
         {
             NAV_LINKS.filter((link) => {
@@ -18,6 +18,8 @@ const currentPath = normalizePath(Astro.url.pathname);
                 return link.isActive !== false && pageConfig?.isActive !== false;
             }).map((link) => {
                 const href = withBase(link.href);
+                const section = link.href.split("/").filter(Boolean)[0];
+                const i18nKey = link.href === "/" ? "nav.about" : section === "posts" ? "nav.blog" : `nav.${section}`;
                 const normalizedHref = normalizePath(href);
                 const isActive = currentPath === normalizedHref || (
                     link.href !== "/" && currentPath.startsWith(`${normalizedHref}/`)
@@ -29,7 +31,7 @@ const currentPath = normalizePath(Astro.url.pathname);
                         href={href}
                         class={`nav-link ${isActive ? "active" : "inactive"}`}
                     >
-                        {link.label}
+                        <span data-i18n={i18nKey}>{link.label}</span>
                         <span class="nav-link-line" />
                     </a>
                 </li>
@@ -37,4 +39,13 @@ const currentPath = normalizePath(Astro.url.pathname);
             })
         }
     </ul>
+    <div class="language-switcher" role="group" aria-label="Content language" data-i18n-aria-label="language.selector">
+        <button type="button" class="language-option" data-language-option="en" aria-pressed="false">
+            ENG
+        </button>
+        <span aria-hidden="true">/</span>
+        <button type="button" class="language-option" data-language-option="it" aria-pressed="false">
+            ITA
+        </button>
+    </div>
 </nav>

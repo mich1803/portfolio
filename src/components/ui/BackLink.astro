@@ -5,8 +5,9 @@ interface Props {
 }
 
 const { href, label } = Astro.props;
+const key = `back.${label}`;
 ---
 
 <a href={href} class="back-link">
-    Go back to {label}
+    <span data-i18n={key}>Go back to {label}</span>
 </a>

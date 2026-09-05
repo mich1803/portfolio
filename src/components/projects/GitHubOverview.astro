@@ -21,6 +21,7 @@ const profileUrl = `https://github.com/${username}`;
             <img
                 src={withBase("/images/michele_magrini.jpeg")}
                 alt="Michele Magrini on GitHub"
+                data-i18n-alt="github.avatar"
                 class="github-overview-avatar"
                 width="72"
                 height="72"
@@ -28,7 +29,7 @@ const profileUrl = `https://github.com/${username}`;
                 data-github-avatar
             />
             <div>
-                <p class="github-overview-eyebrow">GitHub overview</p>
+                <p class="github-overview-eyebrow" data-i18n="github.overview">GitHub overview</p>
                 <h2 id="github-overview-title" data-github-name>
                     Michele Magrini
                 </h2>
@@ -50,31 +51,31 @@ const profileUrl = `https://github.com/${username}`;
             class="github-profile-button"
         >
             <Icon name="Github" size={18} />
-            View profile
+            <span data-i18n="github.profile">View profile</span>
             <Icon name="ExternalLink" size={15} />
         </a>
     </header>
 
-    <dl class="github-stats" aria-label="GitHub profile statistics">
+    <dl class="github-stats" aria-label="GitHub profile statistics" data-i18n-aria-label="github.statsAria">
         <div class="github-stat-card">
             <dd data-github-stat="repositories" aria-busy="true">&mdash;</dd>
-            <dt>Repositories</dt>
+            <dt data-i18n="github.repositories">Repositories</dt>
         </div>
         <div class="github-stat-card">
             <dd data-github-stat="followers" aria-busy="true">&mdash;</dd>
-            <dt>Followers</dt>
+            <dt data-i18n="github.followers">Followers</dt>
         </div>
         <div class="github-stat-card">
             <dd data-github-stat="stars" aria-busy="true">&mdash;</dd>
-            <dt>Total stars</dt>
+            <dt data-i18n="github.stars">Total stars</dt>
         </div>
         <div class="github-stat-card">
             <dd data-github-stat="forks" aria-busy="true">&mdash;</dd>
-            <dt>Total forks</dt>
+            <dt data-i18n="github.forks">Total forks</dt>
         </div>
     </dl>
 
-    <p class="github-overview-status" aria-live="polite" data-github-status>
+    <p class="github-overview-status" aria-live="polite" data-github-status data-status-key="github.loading">
         Loading live public GitHub statistics&hellip;
     </p>
 </section>
@@ -163,6 +164,12 @@ const profileUrl = `https://github.com/${username}`;
         if (avatar) avatar.src = stats.avatar;
     }
 
+    function setGitHubStatus(status: HTMLElement, key: string) {
+        status.dataset.statusKey = key;
+        const translate = (window as any).getUiTranslation;
+        status.textContent = translate ? translate(key) : status.textContent;
+    }
+
     async function initGitHubOverview(root: HTMLElement) {
         if (root.dataset.initialized === "true") return;
         root.dataset.initialized = "true";
@@ -179,11 +186,9 @@ const profileUrl = `https://github.com/${username}`;
             const stats = await loadStats(username);
             showStats(root, stats);
             cacheData(cacheKey, { savedAt: Date.now(), stats });
-            status.textContent = "Live statistics loaded from the public GitHub profile.";
+            setGitHubStatus(status, "github.loaded");
         } catch {
-            status.textContent = cached?.stats
-                ? "Live statistics are unavailable; showing the latest saved values."
-                : "GitHub statistics are temporarily unavailable. Visit the profile for current values.";
+            setGitHubStatus(status, cached?.stats ? "github.cached" : "github.unavailable");
         }
     }
 
@@ -194,4 +199,9 @@ const profileUrl = `https://github.com/${username}`;
     }
 
     document.addEventListener("astro:page-load", initGitHubOverviews);
+    document.addEventListener("content-language-change", () => {
+        document.querySelectorAll<HTMLElement>("[data-github-status]").forEach((status) => {
+            if (status.dataset.statusKey) setGitHubStatus(status, status.dataset.statusKey);
+        });
+    });
 </script>

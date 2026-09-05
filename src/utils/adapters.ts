@@ -20,6 +20,7 @@ export function getListingItem(entry: any, collection?: string): ListingItem {
         title: d.title,
         description: d.description,
         date: formatDate(d.date),
+        dateValue: d.date,
         authors: d.author,
         extraInput: d.journal || d.event || d.institution,
         tags: [...new Set(tags)],

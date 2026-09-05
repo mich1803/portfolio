@@ -2,6 +2,7 @@ export interface ListingItem {
     title: string;
     description?: string;
     date?: string;
+    dateValue?: string;
     authors?: string;
     extraInput?: string;
     tags: string[];

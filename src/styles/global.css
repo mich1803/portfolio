@@ -668,7 +668,7 @@ a:hover,
     color: var(--foreground);
     font-size: 0.8rem;
     font-weight: 700;
-    line-height: 1.35;
+    line-height: 1.2;
     text-decoration: none;
 }
 
@@ -884,10 +884,66 @@ a:hover,
 .navbar {
     padding: 1rem 1.5rem;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     background: var(--background);
     transition: background 0.3s ease;
+}
+
+.language-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: 1.5rem;
+    color: var(--text-muted);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.language-option {
+    padding: 0.2rem 0.15rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    opacity: 0.65;
+}
+
+.language-option:hover,
+.language-option[aria-pressed="true"] {
+    color: var(--accent);
+    opacity: 1;
+}
+
+.language-option[aria-pressed="true"] {
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+}
+
+html[data-content-language="it"] [data-language-variants][data-has-it="true"] > [data-language-variant="en"] {
+    display: none !important;
+}
+
+.prose sup.source-citation {
+    margin-left: 0.15rem;
+    position: static;
+    top: auto;
+    bottom: auto;
+    font-size: 0.8em;
+    line-height: inherit;
+    vertical-align: baseline;
+}
+
+.source-citation a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.source-citation a:hover {
+    text-decoration: underline;
 }
 
 @media (min-width: 1024px) {
@@ -1401,6 +1457,14 @@ a:hover,
 
     .nav-link {
         font-size: 0.85rem;
+    }
+
+    .navbar {
+        gap: 0.75rem;
+    }
+
+    .language-switcher {
+        margin-left: 0;
     }
 }
 /* Publication detail pages */

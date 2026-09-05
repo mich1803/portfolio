@@ -1,8 +1,8 @@
 ---
 import { getEntry, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Timeline from "../../components/ui/Timeline.astro";
 import { PAGES } from "../../config";
+import CvContent from "../../components/cv/CvContent.astro";
 
 if (PAGES.cv.isActive === false) {
     return Astro.redirect("/404");
@@ -16,6 +16,8 @@ if (!cvEntry) {
 }
 
 const { Content } = await render(cvEntry);
+const cvItEntry = await getEntry("cv", "cv-it");
+const { Content: ContentIt } = cvItEntry ? await render(cvItEntry) : { Content: null };
 const {
     experience = [],
     education = [],
@@ -23,91 +25,34 @@ const {
     languages = [],
     hobbies,
 } = cvEntry.data;
+const cvItData = cvItEntry?.data;
 ---
 
 <BaseLayout
     title={PAGES.cv.title}
+    titleIt="Curriculum Vitae"
+    description={PAGES.cv.subtitle}
+    descriptionIt="Percorso accademico e professionale."
     sidebarVariant="cv"
     sidebarCvDetails={{ skills, languages }}
+    sidebarCvDetailsIt={cvItData ? { skills: cvItData.skills || [], languages: cvItData.languages || [] } : undefined}
 >
     <header class="page-header">
-        <h1 class="page-title">{PAGES.cv.title}</h1>
-        <p class="page-subtitle">{PAGES.cv.subtitle}</p>
+        <h1 class="page-title" data-i18n="page.cv.title">{PAGES.cv.title}</h1>
+        <p class="page-subtitle" data-i18n="page.cv.subtitle">{PAGES.cv.subtitle}</p>
     </header>
 
     <div class="container-narrow">
-        {
-            experience.length > 0 && (
-                <section class="section">
-                    <h2 class="section-title border-b border-border pb-2">
-                        Professional Experience
-                    </h2>
-                    <Timeline items={experience.map(exp => ({
-                        title: exp.role,
-                        subtitle: exp.institution,
-                        period: exp.period,
-                        description: exp.description
-                    }))} />
-                </section>
-            )
-        }
-
-        {
-            education.length > 0 && (
-                <section class="section">
-                    <h2 class="section-title border-b border-border pb-2">
-                        Education
-                    </h2>
-                    <Timeline items={education.map(edu => ({
-                        title: edu.degree,
-                        subtitle: edu.institution,
-                        period: edu.period,
-                        description: edu.description,
-                        thesis: edu.thesis
-                    }))} />
-                </section>
-            )
-        }
-
-        {(skills.length > 0 || languages.length > 0 || hobbies) && (
-            <div class="cv-mobile-details prose max-w-none">
-                {skills.length > 0 && (
-                    <section>
-                        <h2>Skills Summary</h2>
-                        <ul>
-                            {skills.map((skill) => (
-                                <li><strong>{skill.category}:</strong> {skill.items}</li>
-                            ))}
-                        </ul>
-                    </section>
-                )}
+        <div data-language-variants data-has-it={String(Boolean(cvItData && ContentIt))}>
+            <div data-language-variant="en" data-language-original="true">
+                <CvContent data={cvEntry.data} Content={Content} />
             </div>
-        )}
-
-        <div class="prose max-w-none">
-            <Content />
+            {cvItData && ContentIt && (
+                <div lang="it" data-language-variant="it" data-language-original="false" hidden>
+                    <CvContent data={cvItData} Content={ContentIt} />
+                </div>
+            )}
         </div>
-
-        {(languages.length > 0 || hobbies) && (
-            <div class="cv-mobile-details prose max-w-none">
-                {languages.length > 0 && (
-                    <section>
-                        <h2>Languages</h2>
-                        <ul>
-                            {languages.map((language) => (
-                                <li><strong>{language.language}:</strong> {language.proficiency}</li>
-                            ))}
-                        </ul>
-                    </section>
-                )}
-                {hobbies && (
-                    <section>
-                        <h2>Hobbies</h2>
-                        <p>{hobbies}</p>
-                    </section>
-                )}
-            </div>
-        )}
     </div>
 </BaseLayout>
 

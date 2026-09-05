@@ -16,6 +16,8 @@ const showToggle = THEME_CONFIG.lightAndDark;
             href={withBase("/rss.xml")}
             aria-label="RSS Feed"
             title="RSS Feed"
+            data-i18n-aria-label="footer.rss"
+            data-i18n-title="footer.rss"
             target="_blank"
             rel="noreferrer"
             class="btn-icon"
@@ -27,6 +29,9 @@ const showToggle = THEME_CONFIG.lightAndDark;
                 <button
                     id="theme-toggle"
                     aria-label="Toggle Dark Mode"
+                    title="Toggle Dark Mode"
+                    data-i18n-aria-label="footer.theme"
+                    data-i18n-title="footer.theme"
                     class="btn-icon"
                 >
                     <Icon name="Sun" size={16} class="hidden dark:block" />

@@ -1,5 +1,5 @@
 ---
-import { getEntry, render } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import BackLink from "../components/ui/BackLink.astro";
 import Tag from "../components/ui/Tag.astro";
@@ -9,6 +9,7 @@ import { withBase } from "../utils/paths";
 import { SITE } from "../config";
 import { renderMarkdown } from "../utils/markdown";
 import { createPublicationBibtex } from "../utils/citations";
+import { getContentLanguage } from "../utils/language";
 
 interface Props {
     collection: "publications" | "projects" | "posts";
@@ -21,14 +22,44 @@ const entry = (await getEntry(collection, id)) as any;
 if (!entry) return Astro.redirect(withBase("/404"));
 
 const { Content, headings } = await render(entry);
-const detail = getDetailItem(entry, collection);
+const translationEntry = (await getCollection(collection as any))
+    .find((candidate: any) => candidate.data.translation_of === id) as any;
+const renderedTranslation = translationEntry ? await render(translationEntry) : undefined;
+const TranslationContent = renderedTranslation?.Content;
+const entryLanguage = getContentLanguage(entry.data);
+const translationLanguage = translationEntry
+    ? getContentLanguage(translationEntry.data)
+    : undefined;
+const hasItalianVariant = entryLanguage === "it" || translationLanguage === "it";
+const defaultLanguage = entryLanguage === "en" || translationLanguage === "en"
+    ? "en"
+    : entryLanguage;
+const defaultEntry = translationLanguage === "en" ? translationEntry : entry;
+const detail = getDetailItem(defaultEntry, collection);
 const hasSidebarSummary = collection === "posts" || collection === "projects";
 const sidebarHeadings = hasSidebarSummary
-    ? headings.filter((heading) => heading.depth === 2 || heading.depth === 3)
+    ? [
+        ...headings
+            .filter((heading) => heading.depth === 2 || heading.depth === 3)
+            .map((heading) => ({
+                ...heading,
+                language: entryLanguage,
+                isOriginal: entry.data.translation_status === "original",
+            })),
+        ...(renderedTranslation?.headings || [])
+            .filter((heading) => heading.depth === 2 || heading.depth === 3)
+            .map((heading) => ({
+                ...heading,
+                language: translationLanguage,
+                isOriginal: translationEntry?.data.translation_status === "original",
+            })),
+    ]
     : [];
-const publicationAbstract = collection === "publications" ? entry.data.abstract : undefined;
-const publicationAbstractHtml = publicationAbstract
-    ? await renderMarkdown(publicationAbstract)
+const publicationAbstractHtml = collection === "publications" && entry.data.abstract
+    ? await renderMarkdown(entry.data.abstract)
+    : undefined;
+const publicationTranslationAbstractHtml = collection === "publications" && translationEntry?.data.abstract
+    ? await renderMarkdown(translationEntry.data.abstract)
     : undefined;
 const publicationCitations = collection === "publications" && typeof entry.data.cited_by === "number"
     ? entry.data.cited_by
@@ -44,22 +75,18 @@ const publicationBibtex = collection === "publications"
     ? createPublicationBibtex(entry.data)
     : undefined;
 
-const meta = [];
-if (detail.date) meta.push({ label: "Date", value: detail.date, icon: "Calendar" });
-if (detail.authors) meta.push({ label: "Author", value: detail.authors, icon: "User" });
-if (detail.extraInput) {
-    const icon = "Institution";
-    const label = collection === "publications" ? "Journal" : "Info";
-    meta.push({ label, value: detail.extraInput, icon });
-}
-
-const description = entry.data.description || detail.description || SITE.desc;
+const description = defaultEntry.data.description || detail.description || SITE.desc;
+const italianEntry = entryLanguage === "it" ? entry : translationLanguage === "it" ? translationEntry : undefined;
+const englishEntry = entryLanguage === "en" ? entry : translationLanguage === "en" ? translationEntry : undefined;
+const descriptionIt = italianEntry?.data.description || description;
 const ogImage = entry.data.image || SITE.ogImage;
 ---
 
 <BaseLayout
     title={detail.title}
+    titleIt={italianEntry?.data.title || detail.title}
     description={description}
+    descriptionIt={descriptionIt}
     ogImage={ogImage}
     ogType="article"
     sidebarVariant={hasSidebarSummary ? "article" : "publication"}
@@ -71,40 +98,108 @@ const ogImage = entry.data.image || SITE.ogImage;
         <BackLink href={withBase(detail.backHref)} label={collection} />
         {collection !== "publications" && detail.externalUrl && (
             <a href={detail.externalUrl} target="_blank" rel="noopener noreferrer" class="link">
-                {collection === "projects" ? "View source" : "View external"}
+                <span data-i18n={collection === "projects" ? "detail.viewSource" : "detail.viewExternal"}>
+                    {collection === "projects" ? "View source" : "View external"}
+                </span>
             </a>
         )}
     </div>
 
     <article>
-        <h1 class="page-title mb-4">{detail.title}</h1>
+        <h1
+            class="page-title mb-4"
+            data-language-variants
+            data-has-it={String(hasItalianVariant)}
+        >
+            <span
+                data-language-variant={entryLanguage}
+                data-language-original={String(entry.data.translation_status === "original")}
+                data-page-title={entry.data.title}
+                data-page-description={entry.data.description || SITE.desc}
+                hidden={entryLanguage !== defaultLanguage}
+            >
+                {entry.data.title}
+            </span>
+            {translationEntry && (
+                <span
+                    data-language-variant={translationLanguage}
+                    data-language-original={String(translationEntry.data.translation_status === "original")}
+                    data-page-title={translationEntry.data.title}
+                    data-page-description={translationEntry.data.description || SITE.desc}
+                    hidden={translationLanguage !== defaultLanguage}
+                >
+                    {translationEntry.data.title}
+                </span>
+            )}
+        </h1>
 
-        {meta.length > 0 && (
+        {(detail.date || detail.authors || detail.extraInput) && (
             <div class="card-meta mb-4">
-                {meta.map((m: any) => (
+                {detail.date && (
                     <span class="flex items-center gap-1">
-                        <Icon name={m.icon} size={14} />
-                        <span>{m.value}</span>
+                        <Icon name="Calendar" size={14} />
+                        <time datetime={defaultEntry.data.date} data-localized-date>{detail.date}</time>
                     </span>
-                ))}
+                )}
+                {detail.authors && (
+                    <div data-language-variants data-has-it={String(hasItalianVariant)}>
+                        {[englishEntry, italianEntry].filter(Boolean).map((variant: any) => (
+                            <span
+                                class="flex items-center gap-1"
+                                data-language-variant={getContentLanguage(variant.data)}
+                                data-language-original={String(variant.data.translation_status === "original")}
+                                hidden={getContentLanguage(variant.data) !== defaultLanguage}
+                            >
+                                <Icon name="User" size={14} />
+                                <span>{variant.data.author}</span>
+                            </span>
+                        ))}
+                    </div>
+                )}
+                {detail.extraInput && (
+                    <div data-language-variants data-has-it={String(hasItalianVariant)}>
+                        {[englishEntry, italianEntry].filter(Boolean).map((variant: any) => (
+                            <span
+                                class="flex items-center gap-1"
+                                data-language-variant={getContentLanguage(variant.data)}
+                                data-language-original={String(variant.data.translation_status === "original")}
+                                hidden={getContentLanguage(variant.data) !== defaultLanguage}
+                            >
+                                <Icon name="Institution" size={14} />
+                                <span>{variant.data.journal || variant.data.event || variant.data.institution}</span>
+                            </span>
+                        ))}
+                    </div>
+                )}
             </div>
         )}
 
         {detail.tags && detail.tags.length > 0 && (
-            <div class="flex gap-2 flex-wrap mb-4">
-                {detail.tags.map((tag: string) => (
-                    <Tag name={tag} size="sm" />
+            <div data-language-variants data-has-it={String(hasItalianVariant)}>
+                {[englishEntry, italianEntry].filter(Boolean).map((variant: any) => (
+                    <div
+                        class="flex gap-2 flex-wrap mb-4"
+                        data-language-variant={getContentLanguage(variant.data)}
+                        data-language-original={String(variant.data.translation_status === "original")}
+                        hidden={getContentLanguage(variant.data) !== defaultLanguage}
+                    >
+                        {[
+                            ...(collection === "publications" && variant.data.type ? [variant.data.type] : []),
+                            ...(variant.data.tags || []),
+                        ].map((tag: string) => <Tag name={tag} size="sm" />)}
+                    </div>
                 ))}
             </div>
         )}
 
         {publicationVideoEmbedUrl && (
             <section class="publication-video" aria-labelledby="publication-video-title">
-                <h2 id="publication-video-title">Presentation video</h2>
+                <h2 id="publication-video-title" data-i18n="detail.presentationVideo">Presentation video</h2>
                 <div class="publication-video-player">
                     <iframe
                         src={publicationVideoEmbedUrl}
-                        title={`Presentation video for ${detail.title}`}
+                        title="Presentation video"
+                        data-i18n-title="detail.videoAria"
                         loading="lazy"
                         allow="autoplay; encrypted-media; picture-in-picture"
                         allowfullscreen
@@ -114,15 +209,53 @@ const ogImage = entry.data.image || SITE.ogImage;
             </section>
         )}
 
-        {publicationAbstractHtml && (
+        {(publicationAbstractHtml || publicationTranslationAbstractHtml) && (
             <section class="publication-abstract">
-                <h2>Abstract</h2>
-                <div class="publication-abstract-content prose" set:html={publicationAbstractHtml} />
+                <h2 data-i18n="detail.abstract">Abstract</h2>
+                <div data-language-variants data-has-it={String(hasItalianVariant)}>
+                    {publicationAbstractHtml && (
+                        <div
+                            class="publication-abstract-content prose"
+                            data-language-variant={entryLanguage}
+                            data-language-original={String(entry.data.translation_status === "original")}
+                            hidden={entryLanguage !== defaultLanguage}
+                            set:html={publicationAbstractHtml}
+                        />
+                    )}
+                    {publicationTranslationAbstractHtml && translationEntry && (
+                        <div
+                            class="publication-abstract-content prose"
+                            data-language-variant={translationLanguage}
+                            data-language-original={String(translationEntry.data.translation_status === "original")}
+                            hidden={translationLanguage !== defaultLanguage}
+                            set:html={publicationTranslationAbstractHtml}
+                        />
+                    )}
+                </div>
             </section>
         )}
 
-        <div class="prose">
-            <Content />
+        <div data-language-variants data-has-it={String(hasItalianVariant)}>
+            <div
+                class="prose"
+                lang={entryLanguage}
+                data-language-variant={entryLanguage}
+                data-language-original={String(entry.data.translation_status === "original")}
+                hidden={entryLanguage !== defaultLanguage}
+            >
+                <Content />
+            </div>
+            {TranslationContent && translationEntry && (
+                <div
+                    class="prose"
+                    lang={translationLanguage}
+                    data-language-variant={translationLanguage}
+                    data-language-original={String(translationEntry.data.translation_status === "original")}
+                    hidden={translationLanguage !== defaultLanguage}
+                >
+                    <TranslationContent />
+                </div>
+            )}
         </div>
 
         {projectDemoUrl && (
@@ -133,26 +266,26 @@ const ogImage = entry.data.image || SITE.ogImage;
                     rel="noopener noreferrer"
                     class="project-demo-button"
                 >
-                    Launch the live simulation
+                    <span data-i18n="detail.launchSimulation">Launch the live simulation</span>
                     <Icon name="ExternalLink" size={16} />
                 </a>
             </div>
         )}
 
         {collection === "publications" && (
-            <footer class="publication-details" aria-label="Publication details">
-                <p class="publication-details-title">Publication details</p>
+            <footer class="publication-details" aria-label="Publication details" data-i18n-aria-label="detail.publicationDetails">
+                <p class="publication-details-title" data-i18n="detail.publicationDetails">Publication details</p>
                 <div class="publication-details-meta">
                     {publicationCitations !== undefined && (
-                        <span><strong>Google Scholar citations:</strong> {publicationCitations}</span>
+                        <span><strong data-i18n="detail.scholarCitations">Google Scholar citations:</strong> {publicationCitations}</span>
                     )}
                     {publicationSource && (
-                        <span><strong>Source:</strong> {publicationSource}</span>
+                        <span><strong data-i18n="detail.source">Source:</strong> {publicationSource}</span>
                     )}
                 </div>
                 {detail.externalUrl && (
                     <a href={detail.externalUrl} target="_blank" rel="noopener noreferrer" class="link">
-                        Open publication
+                        <span data-i18n="detail.openPublication">Open publication</span>
                     </a>
                 )}
             </footer>
@@ -162,3 +295,24 @@ const ogImage = entry.data.image || SITE.ogImage;
         <slot name="footer" />
     </article>
 </BaseLayout>
+
+<script>
+    function initSharedTranscripts() {
+        document.querySelectorAll<HTMLElement>("[data-shared-transcript]").forEach((placeholder) => {
+            if (placeholder.dataset.transcriptReady === "true") return;
+            const id = placeholder.dataset.sharedTranscript;
+            const source = id
+                ? document.querySelector<HTMLElement>(`[data-transcript-source="${id}"]`)
+                : null;
+            if (!source) return;
+            const clone = source.cloneNode(true) as HTMLElement;
+            clone.removeAttribute("data-transcript-source");
+            const summary = clone.querySelector("summary");
+            if (summary && placeholder.dataset.summary) summary.textContent = placeholder.dataset.summary;
+            placeholder.append(clone);
+            placeholder.dataset.transcriptReady = "true";
+        });
+    }
+
+    document.addEventListener("astro:page-load", initSharedTranscripts);
+</script>

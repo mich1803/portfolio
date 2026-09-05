@@ -1,0 +1,66 @@
+---
+import Timeline from "../ui/Timeline.astro";
+
+interface Props {
+    data: any;
+    Content: any;
+}
+
+const { data, Content } = Astro.props;
+const { experience = [], education = [], skills = [], languages = [], hobbies } = data;
+---
+
+{experience.length > 0 && (
+    <section class="section">
+        <h2 class="section-title border-b border-border pb-2" data-i18n="cv.professionalExperience">Professional Experience</h2>
+        <Timeline items={experience.map((item: any) => ({
+            title: item.role,
+            subtitle: item.institution,
+            period: item.period,
+            description: item.description,
+        }))} />
+    </section>
+)}
+
+{education.length > 0 && (
+    <section class="section">
+        <h2 class="section-title border-b border-border pb-2" data-i18n="cv.education">Education</h2>
+        <Timeline items={education.map((item: any) => ({
+            title: item.degree,
+            subtitle: item.institution,
+            period: item.period,
+            description: item.description,
+            thesis: item.thesis,
+        }))} />
+    </section>
+)}
+
+{(skills.length > 0 || languages.length > 0 || hobbies) && (
+    <div class="cv-mobile-details prose max-w-none">
+        {skills.length > 0 && (
+            <section>
+                <h2 data-i18n="cv.skillsSummary">Skills Summary</h2>
+                <ul>{skills.map((skill: any) => <li><strong>{skill.category}:</strong> {skill.items}</li>)}</ul>
+            </section>
+        )}
+    </div>
+)}
+
+<div class="prose max-w-none"><Content /></div>
+
+{(languages.length > 0 || hobbies) && (
+    <div class="cv-mobile-details prose max-w-none">
+        {languages.length > 0 && (
+            <section>
+                <h2 data-i18n="cv.languages">Languages</h2>
+                <ul>{languages.map((item: any) => <li><strong>{item.language}:</strong> {item.proficiency}</li>)}</ul>
+            </section>
+        )}
+        {hobbies && (
+            <section>
+                <h2 data-i18n="cv.hobbies">Hobbies</h2>
+                <p>{hobbies}</p>
+            </section>
+        )}
+    </div>
+)}

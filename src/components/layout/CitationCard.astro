@@ -8,9 +8,9 @@ const { citation } = Astro.props;
 
 <section class="citation-card" aria-labelledby="citation-card-title">
     <div class="citation-card-header">
-        <p id="citation-card-title" class="citation-card-title">How to cite</p>
+        <p id="citation-card-title" class="citation-card-title" data-i18n="citation.title">How to cite</p>
         <button type="button" class="citation-copy-button" data-copy-citation>
-            <span data-copy-citation-label>Copy</span>
+            <span data-copy-citation-label data-i18n="citation.copy">Copy</span>
         </button>
     </div>
     <pre class="citation-code"><code>{citation}</code></pre>
@@ -34,14 +34,16 @@ const { citation } = Astro.props;
 
                     try {
                         await navigator.clipboard.writeText(code);
-                        label.textContent = "Copied";
+                        const translate = (window as any).getUiTranslation;
+                        label.textContent = translate ? translate("citation.copied") : "Copied";
                         button.classList.add("is-copied");
                         window.setTimeout(() => {
-                            label.textContent = "Copy";
+                            label.textContent = translate ? translate("citation.copy") : "Copy";
                             button.classList.remove("is-copied");
                         }, 1800);
                     } catch {
-                        label.textContent = "Copy failed";
+                        const translate = (window as any).getUiTranslation;
+                        label.textContent = translate ? translate("citation.failed") : "Copy failed";
                     }
                 });
             });

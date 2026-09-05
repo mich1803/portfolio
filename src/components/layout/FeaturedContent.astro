@@ -1,7 +1,8 @@
 ---
-import { getEntry } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { FEATURED_CONTENT } from "../../config";
 import { withBase } from "../../utils/paths";
+import { getContentLanguage } from "../../utils/language";
 
 interface Props {
     class?: string;
@@ -30,13 +31,21 @@ const items = (await Promise.all(
     FEATURED_CONTENT.map(async (selection) => {
         const entry = await getEntry(selection.collection, selection.id) as any;
         if (!entry) return null;
+        const collectionEntries = await getCollection(selection.collection);
+        const translation = collectionEntries.find((candidate: any) => candidate.data.translation_of === entry.id) as any;
+        const variants = [entry, translation].filter(Boolean).map((variant: any) => ({
+            language: getContentLanguage(variant.data),
+            isOriginal: variant.data.translation_status === "original",
+            title: variant.data.title,
+            tags: (variant.data.tags || []).slice(0, 2),
+            description: variant.data.featured_description || variant.data.description,
+        }));
 
         return {
-            title: entry.data.title,
+            variants,
             type: typeLabels[selection.collection],
+            typeKey: `content.${selection.collection === "posts" ? "blogpost" : selection.collection.slice(0, -1)}`,
             date: entry.data.date,
-            tags: (entry.data.tags || []).slice(0, 2),
-            description: entry.data.featured_description || entry.data.description,
             href: `/${selection.collection}/${entry.id}`,
         };
     }),
@@ -47,29 +56,47 @@ const items = (await Promise.all(
     class:list={["featured-content", className]}
     aria-labelledby={titleId}
 >
-    <p id={titleId} class="featured-content-title">Featured content</p>
+    <p id={titleId} class="featured-content-title" data-i18n="sidebar.featured">Featured content</p>
     <ol class="featured-content-list">
         {items.map((item) => (
             <li class="featured-content-item">
-                <a href={withBase(item.href)} class="featured-content-link">
-                    {item.title}
-                </a>
+                <div data-language-variants data-has-it={String(item.variants.some((variant) => variant.language === "it"))}>
+                    {item.variants.map((variant) => (
+                        <a
+                            href={withBase(item.href)}
+                            class="featured-content-link"
+                            data-language-variant={variant.language}
+                            data-language-original={String(variant.isOriginal)}
+                            hidden={variant.language !== "en"}
+                        >
+                            {variant.title}
+                        </a>
+                    ))}
+                </div>
                 <div class="featured-content-meta">
-                    <span class="featured-content-type">{item.type}</span>
+                    <span class="featured-content-type" data-i18n={item.typeKey}>{item.type}</span>
                     {item.date && (
-                        <time datetime={item.date}>
+                        <time datetime={item.date} data-localized-date data-date-format="full">
                             {dateFormatter.format(new Date(item.date))}
                         </time>
                     )}
                 </div>
-                {item.description && (
-                    <p class="featured-content-description">{item.description}</p>
-                )}
-                {item.tags.length > 0 && (
-                    <div class="featured-content-tags" aria-label="Tags">
-                        {item.tags.map((tag) => <span>{tag}</span>)}
-                    </div>
-                )}
+                <div data-language-variants data-has-it={String(item.variants.some((variant) => variant.language === "it"))}>
+                    {item.variants.map((variant) => (
+                        <div
+                            data-language-variant={variant.language}
+                            data-language-original={String(variant.isOriginal)}
+                            hidden={variant.language !== "en"}
+                        >
+                            {variant.description && <p class="featured-content-description">{variant.description}</p>}
+                            {variant.tags.length > 0 && (
+                                <div class="featured-content-tags" aria-label="Tags" data-i18n-aria-label="content.tags">
+                                    {variant.tags.map((tag) => <span>{tag}</span>)}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </li>
         ))}
     </ol>

@@ -9,6 +9,7 @@ export async function GET(context: any) {
     const site = new URL(withBase("/"), context.site || SITE.website);
 
     const items = publications
+        .filter((publication: any) => !publication.data.translation_of)
         .filter(isPublicationVisible)
         .map((pub: any) => ({
             title: `[Publication] ${pub.data.title}`,

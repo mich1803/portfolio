@@ -6,18 +6,27 @@ import { PAGES } from "../config";
 
 // Load bio content
 const bioEntry = await getEntry("bio", "bio");
+const bioItEntry = await getEntry("bio", "bio-it");
 const { Content: BioContent } = bioEntry
 	? await render(bioEntry)
 	: { Content: null };
+const { Content: BioContentIt } = bioItEntry
+	? await render(bioItEntry)
+	: { Content: null };
 ---
 
-<BaseLayout title={PAGES.home.title} sidebarVariant="about">
+<BaseLayout
+	title={PAGES.home.title}
+	titleIt="Su di me"
+	descriptionIt="Studente magistrale in Matematica Applicata per l'Intelligenza Artificiale e studente ricercatore nel machine learning spiegabile per applicazioni scientifiche."
+	sidebarVariant="about"
+>
 	<div class="container-narrow">
 		{
 			(PAGES.home.title || PAGES.home.subtitle) && (
 				<header class="page-header">
 					{PAGES.home.title && (
-						<h1 class="page-title">{PAGES.home.title}</h1>
+						<h1 class="page-title" data-i18n="page.home.title">{PAGES.home.title}</h1>
 					)}
 					{PAGES.home.subtitle && (
 						<p class="page-subtitle">{PAGES.home.subtitle}</p>
@@ -25,8 +34,15 @@ const { Content: BioContent } = bioEntry
 				</header>
 			)
 		}
-		<div class="prose">
-			{BioContent ? <BioContent /> : <p>Loading bio...</p>}
+		<div data-language-variants data-has-it={String(Boolean(BioContentIt))}>
+			<div class="prose" data-language-variant="en" data-language-original="true">
+				{BioContent ? <BioContent /> : <p data-i18n="bio.loading">Loading bio...</p>}
+			</div>
+			{BioContentIt && (
+				<div class="prose" lang="it" data-language-variant="it" data-language-original="false" hidden>
+					<BioContentIt />
+				</div>
+			)}
 		</div>
 		<FeaturedContent
 			class="mobile-about-featured-content"

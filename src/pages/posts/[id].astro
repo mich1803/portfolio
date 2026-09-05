@@ -12,9 +12,11 @@ export async function getStaticPaths() {
     if (PAGES.blog.isActive === false) return [];
 
     const posts = await getCollection("posts");
-    return posts.map((post) => ({
+    return posts
+        .filter((post: any) => !post.data.translation_of)
+        .map((post) => ({
         params: { id: post.id },
-    }));
+        }));
 }
 
 const { id } = Astro.params;
