@@ -1,0 +1,103 @@
+---
+import { getCollection, getEntry } from "astro:content";
+import { withBase } from "../../utils/paths";
+
+interface Props {
+    activities: Array<{
+        title: string;
+        description: string;
+        links?: Array<{
+            collection?: "publications" | "posts" | "projects";
+            id?: string;
+            href?: string;
+            preview_title?: string;
+            preview_description?: string;
+        }>;
+    }>;
+    language: "en" | "it";
+}
+
+const { activities, language } = Astro.props;
+const collectionCache = new Map<string, any[]>();
+
+const resolvedActivities = await Promise.all(activities.map(async (activity, activityIndex) => ({
+    ...activity,
+    links: await Promise.all((activity.links || []).map(async (link, linkIndex) => {
+        if (link.collection && link.id) {
+            const original = await getEntry(link.collection, link.id) as any;
+            if (!collectionCache.has(link.collection)) {
+                collectionCache.set(link.collection, await getCollection(link.collection));
+            }
+            const entries = collectionCache.get(link.collection) || [];
+            const localized = language === "it"
+                ? entries.find((entry: any) => entry.data.translation_of === link.id) || original
+                : original;
+            const typeKey = link.collection === "posts"
+                ? "content.blogpost"
+                : link.collection === "projects" ? "content.project" : "content.publication";
+
+            return {
+                href: withBase(`/${link.collection}/${link.id}`),
+                title: localized?.data.title || original?.data.title || link.id,
+                description: localized?.data.description || original?.data.description,
+                typeKey,
+                typeLabel: language === "it"
+                    ? (link.collection === "posts" ? "Articolo" : link.collection === "projects" ? "Progetto" : "Pubblicazione")
+                    : (link.collection === "posts" ? "Blog post" : link.collection === "projects" ? "Project" : "Publication"),
+                external: false,
+                previewId: `activity-preview-${language}-${activityIndex}-${linkIndex}`,
+            };
+        }
+
+        return {
+            href: link.href || "#",
+            title: link.preview_title || activity.title,
+            description: link.preview_description || activity.description,
+            typeKey: "content.externalLink",
+            typeLabel: language === "it" ? "Collegamento esterno" : "External link",
+            external: true,
+            previewId: `activity-preview-${language}-${activityIndex}-${linkIndex}`,
+        };
+    })),
+})));
+---
+
+<section class="section cv-activities">
+    <h2 class="section-title border-b border-border pb-2" data-i18n="cv.activities">Activities</h2>
+    <ul class="activity-list">
+        {resolvedActivities.map((activity) => (
+            <li class="activity-item">
+                <div class="activity-heading">
+                    <strong>{activity.title}</strong>
+                    {activity.links.length > 0 && (
+                        <span
+                            class="activity-references"
+                            aria-label={language === "it"
+                                ? `Contenuti correlati a ${activity.title}`
+                                : `Related content for ${activity.title}`}
+                        >
+                            {activity.links.map((link, index) => (
+                                <a
+                                    href={link.href}
+                                    class="activity-reference"
+                                    target={link.external ? "_blank" : undefined}
+                                    rel={link.external ? "noopener noreferrer" : undefined}
+                                    aria-describedby={link.previewId}
+                                    aria-label={`${index + 1}: ${link.title}`}
+                                >
+                                    <span class="activity-reference-number" aria-hidden="true">{index + 1}</span>
+                                    <span id={link.previewId} class="activity-reference-preview" role="tooltip">
+                                        <span class="activity-reference-type" data-i18n={link.typeKey}>{link.typeLabel}</span>
+                                        <span class="activity-reference-title">{link.title}</span>
+                                        {link.description && <span class="activity-reference-description">{link.description}</span>}
+                                    </span>
+                                </a>
+                            ))}
+                        </span>
+                    )}
+                </div>
+                <p>{activity.description}</p>
+            </li>
+        ))}
+    </ul>
+</section>

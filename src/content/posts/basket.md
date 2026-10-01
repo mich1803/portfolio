@@ -163,7 +163,7 @@ Perché altrimenti probabilmente il titolo di questo articolo sarebbe stato:
 
 **“Come sono finito in Serie A grazie all'AI.”**
 
-Clamoroso.
+Crazy.
 
 Ci avviamo quindi verso l'uscita con la promessa di risentirci nei giorni successivi per iniziare a sviluppare una prima idea “pilota”, qualcosa di concreto da costruire insieme.
 

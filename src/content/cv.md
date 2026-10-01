@@ -18,11 +18,33 @@ education:
   - degree: "B.Sc. in Mathematical Sciences for Artificial Intelligence"
     institution: "Sapienza University of Rome"
     period: "2022 - 2025 | Rome, Italy"
+    thesis: "Machine Learning for Sensor Signals: Time Series Classification in Real-World Environments"
     description: "Strong foundation in machine learning, optimization, numerical methods, and data analysis."
   - degree: "Technical High School Diploma in Computer Science"
     institution: "ITIS Luigi Trafelli"
     period: "2017 - 2022 | Nettuno, Italy"
     description: "Specialized in computer science, software development, networking, and database systems."
+activities:
+  - title: "ML4SEG 2026"
+    description: "Workshop on Machine Learning for Solid Earth Geosciences, Sicily, Italy"
+  - title: "EGU26"
+    description: "European Geosciences Union General Assembly, Vienna, Austria"
+    links:
+      - collection: "publications"
+        id: "scholar-station-level-and-network-wide-shap-explanation-of-cnn-models-for-seismic-cycle-monitoring-evidence--2026"
+      - collection: "publications"
+        id: "scholar-analysis-of-foreshocks-and-aftershocks-in-a-microseismic-sequence-in-switzerland-using-explainable-a-2026"
+  - title: "ICIAP 2025"
+    description: "International Conference on Image Analysis and Processing, Rome, Italy"
+    links:
+      - collection: "publications"
+        id: "scholar-explainable-machine-learning-for-earthquakes-shap-interpretation-of-cnns-to-distinguish-seismic-spec-2025"
+  - title: "Silicon Valley Fellowship"
+    description: "Startup and venture capital immersion program, San Francisco, USA"
+    links:
+      - href: "https://www.gomry.com/it/directory/eAG7mpMjYtnJ0i3MRYxT"
+        preview_title: "Silicon Valley Fellowship"
+        preview_description: "Startup and venture capital immersion program in San Francisco."
 skills:
   - category: "Programming"
     items: "Python, SQL, Java, C/C++"
@@ -37,10 +59,3 @@ languages:
     proficiency: "Professional working proficiency"
 hobbies: "Basketball, graphic design, and content creation."
 ---
-
-## Activities
-
-- **ML4SEG 2026** - Workshop on Machine Learning for Solid Earth Geosciences, Sicily, Italy
-- **EGU26** - European Geosciences Union General Assembly, Vienna, Austria
-- **ICIAP 2025** - International Conference on Image Analysis and Processing, Rome, Italy
-- **Silicon Valley Fellowship** - Startup and venture capital immersion program, San Francisco, USA

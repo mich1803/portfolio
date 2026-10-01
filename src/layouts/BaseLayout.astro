@@ -289,6 +289,13 @@ const jsonLd = {
                 document.querySelectorAll("[data-language-option]").forEach((button) => {
                     const isActive = button.dataset.languageOption === selectedLanguage;
                     button.setAttribute("aria-pressed", String(isActive));
+                    if (button.getAttribute("role") === "menuitemradio") {
+                        button.setAttribute("aria-checked", String(isActive));
+                    }
+                });
+
+                document.querySelectorAll("[data-language-current-flag]").forEach((flag) => {
+                    flag.textContent = selectedLanguage === "it" ? "🇮🇹" : "🇬🇧";
                 });
 
                 window.getUiTranslation = (key, requestedLanguage = selectedLanguage) =>

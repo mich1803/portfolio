@@ -18,11 +18,34 @@ education:
   - degree: "Laurea triennale in Scienze Matematiche per l'Intelligenza Artificiale"
     institution: "Sapienza Università di Roma"
     period: "2022 - 2025 | Roma, Italia"
+    thesis: "Machine Learning per Segnali Sensoristici: Classificazione di Serie Temporali in Ambienti Reali"
+    thesis_url: "https://raw.githubusercontent.com/mich1803/sensor-ts-classification/refs/heads/main/docs/report_ita.pdf"
     description: "Solida preparazione in machine learning, ottimizzazione, metodi numerici e analisi dei dati."
   - degree: "Diploma di istituto tecnico in Informatica"
     institution: "ITIS Luigi Trafelli"
     period: "2017 - 2022 | Nettuno, Italia"
     description: "Specializzazione in informatica, sviluppo software, reti e sistemi di database."
+activities:
+  - title: "ML4SEG 2026"
+    description: "Workshop on Machine Learning for Solid Earth Geosciences, Sicilia, Italia"
+  - title: "EGU26"
+    description: "Assemblea generale della European Geosciences Union, Vienna, Austria"
+    links:
+      - collection: "publications"
+        id: "scholar-station-level-and-network-wide-shap-explanation-of-cnn-models-for-seismic-cycle-monitoring-evidence--2026"
+      - collection: "publications"
+        id: "scholar-analysis-of-foreshocks-and-aftershocks-in-a-microseismic-sequence-in-switzerland-using-explainable-a-2026"
+  - title: "ICIAP 2025"
+    description: "International Conference on Image Analysis and Processing, Roma, Italia"
+    links:
+      - collection: "publications"
+        id: "scholar-explainable-machine-learning-for-earthquakes-shap-interpretation-of-cnns-to-distinguish-seismic-spec-2025"
+  - title: "Silicon Valley Fellowship"
+    description: "Programma immersivo su startup e venture capital, San Francisco, Stati Uniti"
+    links:
+      - href: "https://www.gomry.com/it/directory/eAG7mpMjYtnJ0i3MRYxT"
+        preview_title: "Silicon Valley Fellowship"
+        preview_description: "Programma immersivo su startup e venture capital a San Francisco."
 skills:
   - category: "Programmazione"
     items: "Python, SQL, Java, C/C++"
@@ -40,10 +63,3 @@ language: "it"
 translation_status: "ai"
 translation_of: "cv"
 ---
-
-## Attività
-
-- **ML4SEG 2026** - Workshop on Machine Learning for Solid Earth Geosciences, Sicilia, Italia
-- **EGU26** - Assemblea generale della European Geosciences Union, Vienna, Austria
-- **ICIAP 2025** - International Conference on Image Analysis and Processing, Roma, Italia
-- **Silicon Valley Fellowship** - Programma immersivo su startup e venture capital, San Francisco, Stati Uniti

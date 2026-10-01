@@ -164,7 +164,7 @@ Because otherwise the title of this article would probably have been:
 
 **“How I Ended Up in Serie A Thanks to AI.”**
 
-Unbelievable.
+Crazy.
 
 We then head towards the exit with the promise that we will speak again in the following days and begin developing an initial “pilot” idea, something concrete we can build together.
 

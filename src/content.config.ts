@@ -94,7 +94,19 @@ const cv = defineCollection({
             institution: z.string(),
             period: z.string(),
             thesis: z.string().optional(),
+            thesis_url: z.string().url().optional(),
             description: z.string().optional(),
+        })).optional(),
+        activities: z.array(z.object({
+            title: z.string(),
+            description: z.string(),
+            links: z.array(z.object({
+                collection: z.enum(["publications", "posts", "projects"]).optional(),
+                id: z.string().optional(),
+                href: z.string().url().optional(),
+                preview_title: z.string().optional(),
+                preview_description: z.string().optional(),
+            })).optional(),
         })).optional(),
         skills: z.array(z.object({
             category: z.string(),

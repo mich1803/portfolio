@@ -1,5 +1,6 @@
 ---
 import Timeline from "../ui/Timeline.astro";
+import Activities from "./Activities.astro";
 
 interface Props {
     data: any;
@@ -7,7 +8,7 @@ interface Props {
 }
 
 const { data, Content } = Astro.props;
-const { experience = [], education = [], skills = [], languages = [], hobbies } = data;
+const { experience = [], education = [], activities = [], skills = [], languages = [], hobbies } = data;
 ---
 
 {experience.length > 0 && (
@@ -31,6 +32,7 @@ const { experience = [], education = [], skills = [], languages = [], hobbies } 
             period: item.period,
             description: item.description,
             thesis: item.thesis,
+            thesisUrl: item.thesis_url,
         }))} />
     </section>
 )}
@@ -47,6 +49,10 @@ const { experience = [], education = [], skills = [], languages = [], hobbies } 
 )}
 
 <div class="prose max-w-none"><Content /></div>
+
+{activities.length > 0 && (
+    <Activities activities={activities} language={data.language === "it" ? "it" : "en"} />
+)}
 
 {(languages.length > 0 || hobbies) && (
     <div class="cv-mobile-details prose max-w-none">

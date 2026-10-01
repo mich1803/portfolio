@@ -5,6 +5,7 @@ export interface TimelineItemData {
     subtitle: string;
     description?: string;
     thesis?: string;
+    thesisUrl?: string;
 }
 
 interface Props {
@@ -41,7 +42,12 @@ const { items } = Astro.props;
                     )}
                     {item.thesis && (
                         <div class="body italic mt-2 opacity-80">
-                            Thesis: {item.thesis}
+                            <span data-i18n="cv.thesis">Thesis</span>:{" "}
+                            {item.thesisUrl ? (
+                                <a href={item.thesisUrl} target="_blank" rel="noopener noreferrer" class="link">
+                                    {item.thesis}
+                                </a>
+                            ) : item.thesis}
                         </div>
                     )}
                 </div>
