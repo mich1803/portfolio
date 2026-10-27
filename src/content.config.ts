@@ -70,6 +70,7 @@ const projects = defineCollection({
         featured_description: z.string().optional(),
         tags: z.array(z.string()).optional(),
         external_url: z.string().optional(),
+        title_url: z.string().url().optional(),
         demo_url: z.string().url().optional(),
         image: z.string().optional(),
         language: z.enum(["en", "it"]).default("en"),

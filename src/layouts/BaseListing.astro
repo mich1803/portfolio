@@ -54,6 +54,7 @@ const sortedEntries = entries.sort((a: any, b: any) => {
     <section class="item-list">
         {sortedEntries.map((entry: any) => {
             const item = getListingItem(entry, collection);
+            const titleUrl = collection === "projects" ? entry.data.title_url : undefined;
             const variants = [entry, ...(translationsByOriginal.get(entry.id) || [])]
                 .sort((a: any, b: any) => getContentLanguage(a.data) === "en" ? -1 : 1)
                 .map((variant: any) => ({
@@ -74,7 +75,8 @@ const sortedEntries = entries.sort((a: any, b: any) => {
             return (
                 <BaseItemCard
                     {...item}
-                    href={withBase(`/${collection}/${entry.id}`)}
+                    href={titleUrl || withBase(`/${collection}/${entry.id}`)}
+                    titleExternal={Boolean(titleUrl)}
                     contentVariants={variants}
                 />
             );
